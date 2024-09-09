@@ -10,7 +10,7 @@ export class PageRenderer {
     // Pick the content of all elements of the page
     page.elements.forEach((element) => {
       if (element instanceof TextElement) {
-        pageContent += TextRenderer.render(element) + "\n";
+        pageContent += TextRenderer.render(element, objectManager) + "\n";
       }
     });
 
@@ -19,9 +19,22 @@ export class PageRenderer {
       `<< /Length ${pageContent.length} >>\nstream\n${pageContent}endstream`
     );
 
-    // Get the parent object number dynamaically (linked with the page object)
+    // Get the parent object number dynamically (linked with the page object)
     const parentObjectNumber = objectManager.getParentObjectNumber(); // Get parent object number
-    const pageObject = `<< /Type /Page /Parent ${parentObjectNumber} 0 R /Contents ${contentObjectNumber} 0 R >>`;
+    console.log("Parent Object Number:", parentObjectNumber);
+
+    // Page object with MediaBox
+    // - Get all fonts and add it to the page (reference)
+    objectManager.registerFont("Helvetica");
+    const fontReferences: string[] = [];
+    objectManager.getAllFontsRaw().forEach((value, key) => {
+      const fontRef = `/F${value.fontIndex} ${value.resourceIndex} 0 R`;
+      fontReferences.push(fontRef);
+    });
+    // const pageObject = `<< /Type /Page /Parent ${parentObjectNumber} 0 R /Contents ${contentObjectNumber} 0 R /Resources << /Font << /F${fontData.fontIndex} ${fontData.resourceIndex} 0 R >> >> /MediaBox [0 0 595 842] >>`;
+    const pageObject = `<< /Type /Page /Parent ${parentObjectNumber} 0 R /Contents ${contentObjectNumber} 0 R /Resources << /Font << ${fontReferences.join(
+      " "
+    )} >> >> /MediaBox [0 0 595 842] >>`;
 
     // Add page as new object and return the page number
     return objectManager.addObject(pageObject);

@@ -8,20 +8,27 @@ export class PDFDocumentRenderer {
     objectManager: PDFObjectManager
   ): number {
     const pageNumbers: number[] = [];
-    // Render all pages
+
+    // Add the pages object first... we need its object number (resources)
+    const pagesObject = `<< /Type /Pages /Kids [] /Count ${document.pages.length} >>`;
+    const pagesObjectNumber = objectManager.addObject(pagesObject);
+
+    // Now set the given object number all its childs
+    objectManager.setParentObjectNumber(pagesObjectNumber);
+
+    // Render all pages now that the Parent Object Number is set
     document.pages.forEach((page) => {
       const pageNumber = PageRenderer.render(page, objectManager);
       pageNumbers.push(pageNumber);
     });
 
-    // Add the pages object which reference all pages
-    const pagesObject = `<< /Type /Pages /Kids [${pageNumbers.join(
-      " 0 R "
-    )} 0 R] /Count ${document.pages.length} >>`;
-    const pagesObjectNumber = objectManager.addObject(pagesObject);
+    // We must update the pages object with the current page numbers...
+    const updatedPagesObject = `<< /Type /Pages /Kids [${pageNumbers
+      .map((num) => `${num} 0 R`)
+      .join(" ")}] /Count ${document.pages.length} >>`;
 
-    // Set the parent object dynamically for all pages
-    objectManager.setParentObjectNumber(pagesObjectNumber);
+    // Now we must replace it in the object manager
+    objectManager.replaceObject(pagesObjectNumber, updatedPagesObject);
 
     return pagesObjectNumber;
   }
