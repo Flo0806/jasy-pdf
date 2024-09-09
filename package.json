@@ -4,6 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
+    "manual-test": "tsc -p tsconfig.test.json && node dist/tests/manual/index.js",
     "test": "jest",
     "build": "tsc"
   },
