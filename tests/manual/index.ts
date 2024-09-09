@@ -14,6 +14,24 @@ const pdf = new PDFDocumentElement([
       content: "Hello, JasyPDF!",
     }),
     new TextElement({
+      x: 50,
+      y: 100,
+      fontSize: 24,
+      color: [255, 0, 0],
+      content: [
+        {
+          content: "Ein erster ",
+          fontStyle: "normal",
+          fontColor: [200, 0, 100],
+        },
+        {
+          content: "Ein zweiter!",
+          fontStyle: "bold",
+          fontColor: [0, 255, 100],
+        },
+      ],
+    }),
+    new TextElement({
       x: 150,
       y: 250,
       fontSize: 18,
