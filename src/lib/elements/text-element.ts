@@ -3,10 +3,10 @@ type TextElementParams = {
   y: number;
   fontSize: number;
   content: string;
-  color?: [number, number, number]; // Optionaler Parameter mit Standardwert
+  color?: [number, number, number]; // optional param
 };
 
-export class Text {
+export class TextElement {
   private x: number;
   private y: number;
   private fontSize: number;
