@@ -1,4 +1,4 @@
-import { PDFDocument } from "../elements/pdf-document";
+import { PDFDocument } from "../elements/pdf-document-element";
 import { PDFDocumentRenderer } from "./pdf-document-renderer";
 import { Validator } from "../validators/element-validator";
 

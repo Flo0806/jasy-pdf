@@ -1,3 +1,3 @@
-export * from "./text";
-export * from "./pdf-document";
-export * from "./page";
+export * from "./text-element";
+export * from "./pdf-document-element";
+export * from "./page-element";

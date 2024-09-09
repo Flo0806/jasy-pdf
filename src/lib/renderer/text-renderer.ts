@@ -1,4 +1,4 @@
-import { Text } from "../elements/text";
+import { Text } from "../elements/text-element";
 
 export class TextRenderer {
   static render(textElement: Text): string {

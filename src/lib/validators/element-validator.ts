@@ -1,4 +1,4 @@
-import { PDFDocument } from "../elements/pdf-document";
+import { PDFDocument } from "../elements/pdf-document-element";
 
 export class Validator {
   static validateDocument(document: PDFDocument) {

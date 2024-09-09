@@ -1,4 +1,4 @@
-import { PDFDocument } from "../elements/pdf-document";
+import { PDFDocument } from "../elements/pdf-document-element";
 import { PageRenderer } from "./page-renderer";
 
 export class PDFDocumentRenderer {
