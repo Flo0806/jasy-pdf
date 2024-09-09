@@ -1,6 +1,14 @@
 interface FontIndexes {
   fontIndex: number;
   resourceIndex: number;
+  fontStyle: FontStyle;
+}
+
+export enum FontStyle {
+  Normal = "normal",
+  Bold = "bold",
+  Italic = "italic",
+  BoldItalic = "boldItalic",
 }
 
 /**
@@ -12,20 +20,38 @@ class FontManager {
   private fonts: Map<string, FontIndexes> = new Map();
 
   // Add font to the array
-  addFont(fontName: string, fontIndex: number, resourceIndex: number): void {
-    if (!this.fonts.has(fontName)) {
-      this.fonts.set(fontName, { fontIndex, resourceIndex });
+  addFont(
+    fontName: string,
+    fontIndex: number,
+    resourceIndex: number,
+    fontStyle: FontStyle = FontStyle.Normal
+  ): void {
+    const fontKey = this._createFontKey(fontName, fontStyle);
+    if (!this.fonts.has(fontKey)) {
+      this.fonts.set(fontKey, { fontIndex, resourceIndex, fontStyle });
     }
   }
 
   // Check if font already exists
-  hasFont(fontName: string): boolean {
-    return this.fonts.has(fontName);
+  hasFont(fontName: string, fontStyle: FontStyle = FontStyle.Normal): boolean {
+    const fontKey = this._createFontKey(fontName, fontStyle);
+    return this.fonts.has(fontKey);
   }
 
   // Returns all informations about the font, so indexes and name
-  getFont(fontName: string): FontIndexes | undefined {
-    return this.fonts.get(fontName);
+  getFont(
+    fontName: string,
+    fontStyle: FontStyle = FontStyle.Normal
+  ): FontIndexes | undefined {
+    const fontKey = this._createFontKey(fontName, fontStyle);
+    return this.fonts.get(fontKey);
+  }
+
+  // Fügt eine benutzerdefinierte Schriftart hinzu (späterer Ausbau für Bytecode usw.)
+  addCustomFont(fontName: string, fontStyle: FontStyle): void {
+    const fontIndex = this.getLastFontIndex() + 1;
+    const resourceIndex = this.getLastResourceIndex() + 1;
+    this.addFont(fontName, fontIndex, resourceIndex, fontStyle);
   }
 
   // Returns all fonts
@@ -58,6 +84,11 @@ class FontManager {
       }
     });
     return maxResourceIndex;
+  }
+
+  // Private Methode zur Erstellung eines eindeutigen Schlüssels für Schriftart + Stil
+  private _createFontKey(fontName: string, fontStyle: FontStyle): string {
+    return `${fontName}-${fontStyle}`;
   }
 }
 
@@ -101,19 +132,26 @@ export class PDFObjectManager {
   }
 
   // Register a font family
-  registerFont(fontName: string): FontIndexes {
+  registerFont(
+    fontName: string,
+    fontStyle: FontStyle = FontStyle.Normal
+  ): FontIndexes {
     if (this.fonts.hasFont(fontName)) {
       return this.fonts.getFont(fontName)!; // Already added? Return it!
     }
 
     const resourceNumber = this.objects.length + 1; // The new resource object number
     const fontNumber = this.fonts.getLastFontIndex() + 1; // The new font index number
-    this.fonts.addFont(fontName, fontNumber, resourceNumber); // Lets save it
+    this.fonts.addFont(fontName, fontNumber, resourceNumber, fontStyle); // Lets save it
 
     const fontObject = `<< /Type /Font /Subtype /Type1 /BaseFont /${fontName} >>`;
     this.addObject(fontObject);
 
-    return { fontIndex: fontNumber, resourceIndex: resourceNumber };
+    return {
+      fontIndex: fontNumber,
+      resourceIndex: resourceNumber,
+      fontStyle: fontStyle || FontStyle.Normal,
+    };
   }
 
   getAllFontsRaw() {

@@ -19,6 +19,9 @@ export class PDFRenderer {
     const catalogObject = `<< /Type /Catalog /Pages ${objectManager.getParentObjectNumber()} 0 R >>`;
     objectManager.addObject(catalogObject);
 
+    // Add all standard font families
+    this.registerStandardFonts(objectManager);
+
     // Add rendered objects
     pdfContent += objectManager.getRenderedObjects();
 
@@ -29,4 +32,26 @@ export class PDFRenderer {
 
     return pdfContent;
   }
+
+  //#region  Helper
+  // Method to register all standard fonts
+  private static registerStandardFonts(objectManager: PDFObjectManager) {
+    const standardFonts = [
+      "Helvetica",
+      "Helvetica-Bold",
+      "Helvetica-Oblique",
+      "Helvetica-BoldOblique",
+      "Courier",
+      "Courier-Bold",
+      "Courier-Oblique",
+      "Courier-BoldOblique",
+      "Times-Roman",
+      "Times-Bold",
+      "Times-Italic",
+      "Times-BoldItalic",
+    ];
+
+    standardFonts.forEach((font) => objectManager.registerFont(font));
+  }
+  //#endregion
 }
