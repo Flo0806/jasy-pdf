@@ -2,6 +2,7 @@ interface FontIndexes {
   fontIndex: number;
   resourceIndex: number;
   fontStyle: FontStyle;
+  fullName: string;
 }
 
 export enum FontStyle {
@@ -24,11 +25,17 @@ class FontManager {
     fontName: string,
     fontIndex: number,
     resourceIndex: number,
-    fontStyle: FontStyle = FontStyle.Normal
+    fontStyle: FontStyle = FontStyle.Normal,
+    fullName: string = fontName
   ): void {
     const fontKey = this._createFontKey(fontName, fontStyle);
     if (!this.fonts.has(fontKey)) {
-      this.fonts.set(fontKey, { fontIndex, resourceIndex, fontStyle });
+      this.fonts.set(fontKey, {
+        fontIndex,
+        resourceIndex,
+        fontStyle,
+        fullName,
+      });
     }
   }
 
@@ -48,10 +55,14 @@ class FontManager {
   }
 
   // Fügt eine benutzerdefinierte Schriftart hinzu (späterer Ausbau für Bytecode usw.)
-  addCustomFont(fontName: string, fontStyle: FontStyle): void {
+  addCustomFont(
+    fontName: string,
+    fontStyle: FontStyle,
+    fullName: string = fontName
+  ): void {
     const fontIndex = this.getLastFontIndex() + 1;
     const resourceIndex = this.getLastResourceIndex() + 1;
-    this.addFont(fontName, fontIndex, resourceIndex, fontStyle);
+    this.addFont(fontName, fontIndex, resourceIndex, fontStyle, fullName);
   }
 
   // Returns all fonts
@@ -134,23 +145,25 @@ export class PDFObjectManager {
   // Register a font family
   registerFont(
     fontName: string,
-    fontStyle: FontStyle = FontStyle.Normal
+    fontStyle: FontStyle = FontStyle.Normal,
+    fullName: string = fontName
   ): FontIndexes {
-    if (this.fonts.hasFont(fontName)) {
-      return this.fonts.getFont(fontName)!; // Already added? Return it!
+    if (this.fonts.hasFont(fontName, fontStyle)) {
+      return this.fonts.getFont(fontName, fontStyle)!; // Already added? Return it!
     }
 
     const resourceNumber = this.objects.length + 1; // The new resource object number
     const fontNumber = this.fonts.getLastFontIndex() + 1; // The new font index number
     this.fonts.addFont(fontName, fontNumber, resourceNumber, fontStyle); // Lets save it
 
-    const fontObject = `<< /Type /Font /Subtype /Type1 /BaseFont /${fontName} >>`;
+    const fontObject = `<< /Type /Font /Subtype /Type1 /BaseFont /${fullName} >>`;
     this.addObject(fontObject);
 
     return {
       fontIndex: fontNumber,
       resourceIndex: resourceNumber,
-      fontStyle: fontStyle || FontStyle.Normal,
+      fontStyle: fontStyle,
+      fullName: fullName,
     };
   }
 
