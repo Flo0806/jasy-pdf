@@ -1,8 +1,9 @@
 import { TextRenderer } from "../renderer/text-renderer";
+import { FontStyle } from "../utils/pdf-object-manager";
 
 export interface TextSegment {
   content: string;
-  fontStyle?: "normal" | "bold" | "italic";
+  fontStyle?: FontStyle;
   fontColor?: [number, number, number];
   fontFamily?: string;
 }
