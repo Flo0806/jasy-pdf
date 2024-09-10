@@ -3,6 +3,7 @@ import { PageElement } from "../../src/lib/elements/page-element";
 import { TextElement } from "../../src/lib/elements/text-element";
 import { PDFRenderer } from "../../src/lib/renderer/pdf-renderer";
 import fs from "fs";
+import { FontStyle } from "../../src/lib/utils/pdf-object-manager";
 
 const pdf = new PDFDocumentElement([
   new PageElement([
@@ -21,12 +22,12 @@ const pdf = new PDFDocumentElement([
       content: [
         {
           content: "Ein erster ",
-          fontStyle: "normal",
+          fontStyle: FontStyle.Normal,
           fontColor: [200, 0, 100],
         },
         {
           content: "Ein zweiter!",
-          fontStyle: "bold",
+          fontStyle: FontStyle.Normal,
           fontColor: [0, 255, 100],
         },
       ],
