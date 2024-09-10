@@ -1,5 +1,5 @@
 import { TextElement, TextSegment } from "../elements/text-element";
-import { PDFObjectManager } from "../utils/pdf-object-manager";
+import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
 
 export class TextRenderer {
   static getTextSize(textElement: TextElement): {
@@ -16,19 +16,6 @@ export class TextRenderer {
 
     return { width, height };
   }
-
-  // static render(
-  //   textElement: TextElement,
-  //   objectManager: PDFObjectManager
-  // ): string {
-  //   const { x, y, fontSize, color, content, fontFamily } =
-  //     textElement.getProps();
-  //   const colorString = color.map((c) => (c / 255).toFixed(3)).join(" ");
-
-  //   const fontData = objectManager.registerFont(fontFamily);
-
-  //   return `BT /F${fontData.fontIndex} ${fontSize} Tf ${colorString} rg ${x} ${y} Td (${content}) Tj ET`;
-  // }
 
   static render(
     textElement: TextElement,
@@ -65,7 +52,10 @@ export class TextRenderer {
     // A `TextSegment[]`?
     let renderedSegments = "";
     content.forEach((segment: TextSegment) => {
-      const font = objectManager.registerFont(segment.fontFamily || fontFamily);
+      const font = objectManager.registerFont(
+        segment.fontFamily || fontFamily,
+        segment.fontStyle || FontStyle.Normal
+      );
       const segmentColor = segment.fontColor
         ? segment.fontColor.map((c) => (c / 255).toFixed(3)).join(" ")
         : "0 0 0"; // Default is black TODO: Set a global variable to set a standard color for the document!!
