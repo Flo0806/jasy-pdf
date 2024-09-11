@@ -93,6 +93,18 @@ export class PDFRenderer {
         fontStyle: FontStyle.BoldItalic,
         fullName: "Times-BoldItalic",
       },
+
+      {
+        fontName: "Symbol",
+        fontStyle: FontStyle.Normal,
+        fullName: "Symbol",
+      },
+
+      {
+        fontName: "ITC Zapf Dingbats",
+        fontStyle: FontStyle.Normal,
+        fullName: "ITC Zapf Dingbats",
+      },
     ];
 
     standardFonts.forEach((font) =>
