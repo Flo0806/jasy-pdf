@@ -13,6 +13,7 @@ type TextElementParams = {
   y: number;
   fontSize: number;
   fontFamily?: string;
+  fontStyle?: FontStyle;
   content: string | TextSegment[];
   color?: [number, number, number]; // optional param
 };
@@ -22,6 +23,7 @@ export class TextElement {
   private y: number;
   private fontSize: number;
   private fontFamily: string;
+  private fontStyle: FontStyle;
   private color: [number, number, number];
   private content: string | TextSegment[];
   private width: number;
@@ -33,12 +35,14 @@ export class TextElement {
     fontSize,
     content,
     fontFamily = "Helvetica",
+    fontStyle = FontStyle.Normal,
     color = [0, 0, 0],
   }: TextElementParams) {
     this.x = x;
     this.y = y;
     this.fontSize = fontSize;
     this.fontFamily = fontFamily;
+    this.fontStyle = fontStyle;
     this.color = color;
     this.content = content; // <-- Hier arbeiten wir dran!
 
@@ -53,6 +57,7 @@ export class TextElement {
       y: this.y,
       fontSize: this.fontSize,
       fontFamily: this.fontFamily,
+      fontStyle: this.fontStyle,
       color: this.color,
       content: this.content,
     };
