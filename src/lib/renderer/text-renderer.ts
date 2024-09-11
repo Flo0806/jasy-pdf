@@ -1,20 +1,78 @@
+import { fontMetrics } from "../constants/font-metrics";
 import { TextElement, TextSegment } from "../elements/text-element";
 import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
 
 export class TextRenderer {
+  //#region Helper
+  private static calculateWidthForString(
+    text: string,
+    font: FontIndexes,
+
+    fontSize: number
+  ): number {
+    let totalWidth = 0;
+
+    // Look up the font metrics for the font family and style
+    const metrics = fontMetrics[`${fontFamily}-${fontStyle}`];
+
+    if (!metrics) {
+      throw new Error(`Font metrics not found for ${fontFamily}-${fontStyle}`);
+    }
+
+    // Iterate over each character in the string
+    for (const char of text) {
+      const advanceWidth = metrics[char] || metrics["default"]; // Fallback to 'default' width if char not found
+      const scaledWidth = (advanceWidth / 1000) * fontSize; // Scale the advance width by the font size
+      totalWidth += scaledWidth;
+    }
+
+    return totalWidth;
+  }
+  //#endregion
+
   static getTextSize(textElement: TextElement): {
     width: number;
     height: number;
   } {
-    const { fontSize, content } = textElement.getProps();
+    const {
+      fontSize,
+      content,
+      fontFamily,
+      fontStyle = FontStyle.Normal,
+    } = textElement.getProps();
 
-    // Wir gehen davon aus, dass jeder Buchstabe ca. 0.6 der Schriftgröße breit ist (kann angepasst werden)
-    const averageCharWidthFactor = 0.6;
+    // Initialize total width
+    let totalWidth = 0;
+    let currentFontFamily = fontFamily;
+    let currentFontStyle = fontStyle;
 
-    const width = content.length * fontSize * averageCharWidthFactor;
-    const height = fontSize; // Höhe ist gleich der Schriftgröße
+    if (typeof content === "string") {
+      // Simple string case
+      totalWidth = this.calculateWidthForString(
+        content,
+        fontFamily,
+        fontStyle,
+        fontSize
+      );
+    } else {
+      // TextSegment[] case
+      content.forEach((segment: TextSegment) => {
+        const segmentFontFamily = segment.fontFamily || currentFontFamily;
+        const segmentFontStyle = segment.fontStyle || currentFontStyle;
 
-    return { width, height };
+        totalWidth += this.calculateWidthForString(
+          segment.content,
+          segmentFontFamily,
+          segmentFontStyle,
+          fontSize
+        );
+      });
+    }
+
+    // The height is simply the font size
+    const height = fontSize;
+
+    return { width: totalWidth, height };
   }
 
   static render(

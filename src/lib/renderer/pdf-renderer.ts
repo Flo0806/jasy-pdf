@@ -10,9 +10,6 @@ export class PDFRenderer {
     // Header
     pdfContent += "%PDF-1.4\n";
 
-    // Add all standard font families
-    this.registerStandardFonts(objectManager);
-
     // Render pages and contents
     PDFDocumentRenderer.render(document, objectManager);
 
@@ -30,86 +27,4 @@ export class PDFRenderer {
 
     return pdfContent;
   }
-
-  //#region  Helper
-  // Method to register all standard fonts
-  private static registerStandardFonts(objectManager: PDFObjectManager) {
-    const standardFonts = [
-      {
-        fontName: "Helvetica",
-        fontStyle: FontStyle.Normal,
-        fullName: "Helvetica",
-      },
-      {
-        fontName: "Helvetica",
-        fontStyle: FontStyle.Bold,
-        fullName: "Helvetica-Bold",
-      },
-      {
-        fontName: "Helvetica",
-        fontStyle: FontStyle.Italic,
-        fullName: "Helvetica-Oblique",
-      },
-      {
-        fontName: "Helvetica",
-        fontStyle: FontStyle.BoldItalic,
-        fullName: "Helvetica-BoldOblique",
-      },
-
-      { fontName: "Courier", fontStyle: FontStyle.Normal, fullName: "Courier" },
-      {
-        fontName: "Courier",
-        fontStyle: FontStyle.Bold,
-        fullName: "Courier-Bold",
-      },
-      {
-        fontName: "Courier",
-        fontStyle: FontStyle.Italic,
-        fullName: "Courier-Oblique",
-      },
-      {
-        fontName: "Courier",
-        fontStyle: FontStyle.BoldItalic,
-        fullName: "Courier-BoldOblique",
-      },
-
-      {
-        fontName: "Times-Roman",
-        fontStyle: FontStyle.Normal,
-        fullName: "Times-Roman",
-      },
-      {
-        fontName: "Times-Roman",
-        fontStyle: FontStyle.Bold,
-        fullName: "Times-Bold",
-      },
-      {
-        fontName: "Times-Roman",
-        fontStyle: FontStyle.Italic,
-        fullName: "Times-Italic",
-      },
-      {
-        fontName: "Times-Roman",
-        fontStyle: FontStyle.BoldItalic,
-        fullName: "Times-BoldItalic",
-      },
-
-      {
-        fontName: "Symbol",
-        fontStyle: FontStyle.Normal,
-        fullName: "Symbol",
-      },
-
-      {
-        fontName: "ITC Zapf Dingbats",
-        fontStyle: FontStyle.Normal,
-        fullName: "ITC Zapf Dingbats",
-      },
-    ];
-
-    standardFonts.forEach((font) =>
-      objectManager.registerFont(font.fontName, font.fontStyle, font.fullName)
-    );
-  }
-  //#endregion
 }
