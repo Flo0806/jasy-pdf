@@ -16,6 +16,7 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "jasy-pdf": "file:"
+    "jasy-pdf": "file:",
+    "reflect-metadata": "^0.2.2"
   }
 }
