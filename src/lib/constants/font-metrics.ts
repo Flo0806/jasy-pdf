@@ -1,5 +1,5 @@
 // Helvetica advance widths
-export const fontMetrics = {
+export const fontMetrics: { [key: string]: Record<string, number> } = {
   // Helvetica
   Helvetica: {
     A: 667,
