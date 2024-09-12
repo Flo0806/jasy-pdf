@@ -25,7 +25,6 @@ class MyPDF extends PDFDocument {
   }
 
   build(): PDFDocumentElement {
-    console.log("KKKK", this.size);
     return new PDFDocumentElement([
       new PageElement([
         new TextElement({
@@ -35,10 +34,9 @@ class MyPDF extends PDFDocument {
           color: [0, 0, 255],
           fontFamily: "Courier",
           content:
-            this.asdf.testSize() +
             "This is a test. YES! It's a very long text. I wanna see if the pdf will be break into a new line!",
         }),
-      ]).addTextElement(this.asdf),
+      ]),
     ]);
   }
 }
@@ -64,7 +62,7 @@ class MyPDF extends PDFDocument {
 
 const renderedPDF = MyPDF.render(); // PDFRenderer.render(pdf);
 console.log(renderedPDF);
-fs.writeFile("C:/Users/fh/Downloads/test.pdf", renderedPDF, (err) => {
+fs.writeFile("C:/Users/fheuberger/Downloads/test.pdf", renderedPDF, (err) => {
   if (err) {
     console.error("Error writing file:", err);
   } else {
