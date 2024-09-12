@@ -3,77 +3,77 @@ import { TextElement, TextSegment } from "../elements/text-element";
 import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
 
 export class TextRenderer {
-  //#region Helper
-  private static calculateWidthForString(
-    text: string,
-    font: FontIndexes,
+  // //#region Helper
+  // private static calculateWidthForString(
+  //   text: string,
+  //   fontFamily: string,
+  //   fontStyle: FontStyle,
+  //   fontSize: number
+  // ): number {
+  //   let totalWidth = 0;
 
-    fontSize: number
-  ): number {
-    let totalWidth = 0;
+  //   // Look up the font metrics for the font family and style
+  //   const metrics = fontMetrics[`${fontFamily}-${fontStyle}`];
 
-    // Look up the font metrics for the font family and style
-    const metrics = fontMetrics[`${fontFamily}-${fontStyle}`];
+  //   if (!metrics) {
+  //     throw new Error(`Font metrics not found for ${fontFamily}-${fontStyle}`);
+  //   }
 
-    if (!metrics) {
-      throw new Error(`Font metrics not found for ${fontFamily}-${fontStyle}`);
-    }
+  //   // Iterate over each character in the string
+  //   for (const char of text) {
+  //     const advanceWidth = metrics[char] || metrics["default"]; // Fallback to 'default' width if char not found
+  //     const scaledWidth = (advanceWidth / 1000) * fontSize; // Scale the advance width by the font size
+  //     totalWidth += scaledWidth;
+  //   }
 
-    // Iterate over each character in the string
-    for (const char of text) {
-      const advanceWidth = metrics[char] || metrics["default"]; // Fallback to 'default' width if char not found
-      const scaledWidth = (advanceWidth / 1000) * fontSize; // Scale the advance width by the font size
-      totalWidth += scaledWidth;
-    }
+  //   return totalWidth;
+  // }
+  // //#endregion
 
-    return totalWidth;
-  }
-  //#endregion
+  // static getTextSize(textElement: TextElement): {
+  //   width: number;
+  //   height: number;
+  // } {
+  //   const {
+  //     fontSize,
+  //     content,
+  //     fontFamily,
+  //     fontStyle = FontStyle.Normal,
+  //   } = textElement.getProps();
 
-  static getTextSize(textElement: TextElement): {
-    width: number;
-    height: number;
-  } {
-    const {
-      fontSize,
-      content,
-      fontFamily,
-      fontStyle = FontStyle.Normal,
-    } = textElement.getProps();
+  //   // Initialize total width
+  //   let totalWidth = 0;
+  //   let currentFontFamily = fontFamily;
+  //   let currentFontStyle = fontStyle;
 
-    // Initialize total width
-    let totalWidth = 0;
-    let currentFontFamily = fontFamily;
-    let currentFontStyle = fontStyle;
+  //   if (typeof content === "string") {
+  //     // Simple string case
+  //     totalWidth = this.calculateWidthForString(
+  //       content,
+  //       fontFamily,
+  //       fontStyle,
+  //       fontSize
+  //     );
+  //   } else {
+  //     // TextSegment[] case
+  //     content.forEach((segment: TextSegment) => {
+  //       const segmentFontFamily = segment.fontFamily || currentFontFamily;
+  //       const segmentFontStyle = segment.fontStyle || currentFontStyle;
 
-    if (typeof content === "string") {
-      // Simple string case
-      totalWidth = this.calculateWidthForString(
-        content,
-        fontFamily,
-        fontStyle,
-        fontSize
-      );
-    } else {
-      // TextSegment[] case
-      content.forEach((segment: TextSegment) => {
-        const segmentFontFamily = segment.fontFamily || currentFontFamily;
-        const segmentFontStyle = segment.fontStyle || currentFontStyle;
+  //       totalWidth += this.calculateWidthForString(
+  //         segment.content,
+  //         segmentFontFamily,
+  //         segmentFontStyle,
+  //         fontSize
+  //       );
+  //     });
+  //   }
 
-        totalWidth += this.calculateWidthForString(
-          segment.content,
-          segmentFontFamily,
-          segmentFontStyle,
-          fontSize
-        );
-      });
-    }
+  //   // The height is simply the font size
+  //   const height = fontSize;
 
-    // The height is simply the font size
-    const height = fontSize;
-
-    return { width: totalWidth, height };
-  }
+  //   return { width: totalWidth, height };
+  // }
 
   static render(
     textElement: TextElement,
@@ -109,6 +109,7 @@ export class TextRenderer {
 
     // A `TextSegment[]`?
     let renderedSegments = "";
+    console.log(content);
     content.forEach((segment: TextSegment) => {
       const font = objectManager.registerFont(
         segment.fontFamily || fontFamily,
