@@ -1,10 +1,23 @@
+import { PDFElement, WithChildren } from "./pdf-element";
 import { TextElement } from "./text-element";
 
-export class PageElement {
-  constructor(public elements: TextElement[]) {}
+interface PDFPageParams extends WithChildren {
+  children: PDFElement[];
+}
+export class PageElement extends PDFElement {
+  private children: PDFElement[];
+
+  constructor({ children }: PDFPageParams) {
+    super();
+    this.children = children;
+  }
+
+  override getProps(): PDFPageParams {
+    return { children: this.children };
+  }
 
   addTextElement(element: TextElement) {
-    this.elements.push(element);
+    this.children.push(element);
     return this;
   }
 }

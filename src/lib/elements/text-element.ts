@@ -8,7 +8,7 @@ export interface TextSegment {
   fontFamily?: string;
 }
 
-type TextElementParams = {
+interface TextElementParams {
   id?: string;
   output?: any;
   x: number;
@@ -18,9 +18,9 @@ type TextElementParams = {
   fontStyle?: FontStyle;
   content: string | TextSegment[];
   color?: [number, number, number]; // optional param
-};
+}
 
-@InjectObjectManager()
+// @InjectObjectManager()
 export class TextElement extends PDFElement {
   private x: number;
   private y: number;
@@ -32,6 +32,7 @@ export class TextElement extends PDFElement {
   private width!: number;
   private height!: number;
 
+  @InjectObjectManager()
   private _objectManager!: PDFObjectManager;
 
   constructor({
@@ -50,7 +51,7 @@ export class TextElement extends PDFElement {
     this.fontFamily = fontFamily;
     this.fontStyle = fontStyle;
     this.color = color;
-    this.content = content; // <-- Hier arbeiten wir dran!
+    this.content = content;
   }
 
   getProps() {
