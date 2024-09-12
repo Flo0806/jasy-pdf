@@ -88,10 +88,11 @@ export class TextRenderer {
       content,
       fontSize,
       fontFamily,
-      objectManager
+      objectManager,
+      300
     );
 
-    return `BT ${colorString} rg ${x} ${y} Td ${renderedContent} ET`;
+    return `BT ${colorString} rg ${fontSize} TL ${x} ${y} Td ${renderedContent} ET`;
   }
 
   // Private function to check if content is a string or a `TextSegment[]`
@@ -99,17 +100,71 @@ export class TextRenderer {
     content: string | TextSegment[],
     fontSize: number,
     fontFamily: string,
-    objectManager: PDFObjectManager
+    objectManager: PDFObjectManager,
+    maxWidth: number
   ): string {
-    // A simple text string?
+    let renderedContent = "";
+
+    // This function adds line breaks if needed
+    const wrapText = (
+      text: string,
+      fontFamily: string,
+      fontSize: number,
+      maxWidth: number
+    ): string[] => {
+      let currentLine = "";
+      let currentWidth = 0;
+      const lines: string[] = [];
+
+      // Split the text into words, inclusive empty spaces
+      const words = text.split(" ");
+
+      words.forEach((word, index) => {
+        // Calc the width of the actual word
+        const wordWidth = objectManager.getStringWidth(
+          word,
+          fontFamily,
+          fontSize
+        );
+        const spaceWidth = objectManager.getCharWidth(
+          " ",
+          fontFamily,
+          fontSize
+        );
+
+        // Check if the word is to big for the current line
+        if (currentWidth + wordWidth > maxWidth) {
+          lines.push(currentLine.trim());
+          currentLine = word;
+          currentWidth = wordWidth;
+        } else {
+          // Add the word to the current line
+          currentLine += index === 0 ? word : " " + word;
+          currentWidth += wordWidth + spaceWidth; // Update lines current width
+        }
+      });
+
+      if (currentLine) {
+        lines.push(currentLine.trim()); // Add last line
+      }
+
+      return lines;
+    };
+
+    // If content is a simple string
     if (typeof content === "string") {
       const fontData = objectManager.registerFont(fontFamily);
-      return `/F${fontData.fontIndex} ${fontSize} Tf (${content}) Tj`;
+      const lines = wrapText(content, fontFamily, fontSize, maxWidth);
+      console.log(lines);
+      return lines
+        .map((line, index) => {
+          const textCommand = `/F${fontData.fontIndex} ${fontSize} Tf (${line}) Tj`;
+          return index === 0 ? textCommand : `T* (${line}) Tj`;
+        })
+        .join("\n");
     }
 
-    // A `TextSegment[]`?
-    let renderedSegments = "";
-    console.log(content);
+    // If content is a array of `TextSegment`
     content.forEach((segment: TextSegment) => {
       const font = objectManager.registerFont(
         segment.fontFamily || fontFamily,
@@ -117,11 +172,23 @@ export class TextRenderer {
       );
       const segmentColor = segment.fontColor
         ? segment.fontColor.map((c) => (c / 255).toFixed(3)).join(" ")
-        : "0 0 0"; // Default is black TODO: Set a global variable to set a standard color for the document!!
+        : "0 0 0"; // Standard color is black
 
-      renderedSegments += `/F${font.fontIndex} ${fontSize} Tf ${segmentColor} rg (${segment.content}) Tj `;
+      const lines = wrapText(
+        segment.content,
+        segment.fontFamily || fontFamily,
+        fontSize,
+        maxWidth
+      );
+      renderedContent +=
+        lines
+          .map(
+            (line) =>
+              `/F${font.fontIndex} ${fontSize} Tf ${segmentColor} rg (${line}) Tj`
+          )
+          .join("\n") + "\n";
     });
 
-    return renderedSegments.trim();
+    return renderedContent.trim();
   }
 }
