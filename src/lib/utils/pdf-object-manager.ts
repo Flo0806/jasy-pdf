@@ -1,3 +1,5 @@
+import { fontMetrics } from "../constants/font-metrics";
+
 interface FontIndexes {
   fontIndex: number;
   resourceIndex: number;
@@ -165,6 +167,43 @@ export class PDFObjectManager {
       fontStyle: fontStyle,
       fullName: fullName,
     };
+  }
+
+  getCharWidth(
+    char: string,
+    fontFamily: keyof typeof fontMetrics,
+    fontSize: number
+  ): number {
+    // Überprüfen, ob die Schriftfamilie und das Zeichen in den fontMetrics vorhanden sind
+    const font = fontMetrics[fontFamily];
+    if (!font) {
+      throw new Error(`Font family "${fontFamily}" not found in font metrics.`);
+    }
+
+    // Wenn das Zeichen nicht im Font-Metrics-Objekt ist, verwende eine Standardbreite (z.B. für nicht definierte Zeichen)
+    const charWidth = font[char] || font["a"]; // Nutze eine Standardbreite für unbekannte Zeichen (z.B. die Breite von 'a')
+
+    // Berechne die Zeichenbreite unter Berücksichtigung der Schriftgröße
+    const scaleFactor = fontSize / 1000;
+    return charWidth * scaleFactor;
+  }
+
+  getStringWidth(text: string, fontFamily: string, fontSize: number): number {
+    let totalWidth = 0;
+
+    const font = fontMetrics[fontFamily];
+    if (!font) {
+      throw new Error(`Font family "${fontFamily}" not found in font metrics.`);
+    }
+
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      const charWidth = font[char] || font["a"]; // Nutze eine Standardbreite für unbekannte Zeichen (z.B. die Breite von 'a')
+
+      totalWidth += (charWidth / 1000) * fontSize; // Schriftgrößenfaktor
+    }
+
+    return totalWidth;
   }
 
   getAllFontsRaw() {
