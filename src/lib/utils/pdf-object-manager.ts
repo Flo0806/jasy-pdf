@@ -188,6 +188,15 @@ export class PDFObjectManager {
     return charWidth * scaleFactor;
   }
 
+  testText = "Start";
+  getTestText() {
+    return this.testText;
+  }
+
+  setTestText(text: string) {
+    this.testText = text;
+  }
+
   getStringWidth(text: string, fontFamily: string, fontSize: number): number {
     let totalWidth = 0;
 
