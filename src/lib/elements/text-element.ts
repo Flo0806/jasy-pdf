@@ -1,6 +1,6 @@
 import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
-import { PDFElement } from "./pdf-element";
+import { PDFElement, SizedElement } from "./pdf-element";
 export interface TextSegment {
   content: string;
   fontStyle?: FontStyle;
@@ -8,7 +8,7 @@ export interface TextSegment {
   fontFamily?: string;
 }
 
-interface TextElementParams {
+interface TextElementParams extends SizedElement {
   id?: string;
   output?: any;
   x: number;
