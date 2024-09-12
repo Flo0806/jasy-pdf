@@ -1,9 +1,6 @@
-import { TextRenderer } from "../renderer/text-renderer";
 import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
-import {
-  injectionTarget,
-  InjectObjectManager,
-} from "../utils/pdf-object-manager-decorator";
+import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
+import { PDFElement } from "./pdf-element";
 export interface TextSegment {
   content: string;
   fontStyle?: FontStyle;
@@ -23,10 +20,8 @@ type TextElementParams = {
   color?: [number, number, number]; // optional param
 };
 
-@injectionTarget()
-export class TextElement {
-  private id?: string;
-  private output?: any;
+@InjectObjectManager()
+export class TextElement extends PDFElement {
   private x: number;
   private y: number;
   private fontSize: number;
@@ -37,7 +32,6 @@ export class TextElement {
   private width!: number;
   private height!: number;
 
-  // @InjectObjectManager()
   private _objectManager!: PDFObjectManager;
 
   constructor({
@@ -48,9 +42,8 @@ export class TextElement {
     fontFamily = "Helvetica",
     fontStyle = FontStyle.Normal,
     color = [0, 0, 0],
-    id,
-    output,
   }: TextElementParams) {
+    super();
     this.x = x;
     this.y = y;
     this.fontSize = fontSize;
@@ -58,21 +51,6 @@ export class TextElement {
     this.fontStyle = fontStyle;
     this.color = color;
     this.content = content; // <-- Hier arbeiten wir dran!
-    (this.id = id), (this.output = output);
-
-    console.log("INIT LÄÖUFT");
-    // const { width, height } = TextRenderer.getTextSize(this);
-    // this.width = width;
-    // this.height = height;
-  }
-
-  testSize() {
-    return "Hallo Welt!";
-  }
-
-  setText() {
-    this.content = "Hallo Welt 2.0";
-    return this;
   }
 
   getProps() {
