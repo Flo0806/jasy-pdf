@@ -16,7 +16,7 @@ export abstract class SizedPDFElement extends PDFElement {
     this.height = data.height;
   }
 
-  protected getSize() {
+  public getSize(): SizedElement {
     return { x: this.x, y: this.y, width: this.width, height: this.height };
   }
 }

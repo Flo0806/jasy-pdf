@@ -11,10 +11,6 @@ export interface TextSegment {
 interface TextElementParams extends SizedElement {
   id?: string;
   output?: any;
-  x: number;
-  y: number;
-  width?: number;
-  height?: number;
   fontSize: number;
   fontFamily?: string;
   fontStyle?: FontStyle;
@@ -53,7 +49,7 @@ export class TextElement extends SizedPDFElement {
     this.content = content;
   }
 
-  getProps() {
+  override getProps() {
     return {
       x: this.x,
       y: this.y,
@@ -63,9 +59,5 @@ export class TextElement extends SizedPDFElement {
       color: this.color,
       content: this.content,
     };
-  }
-
-  getSize() {
-    return { x: this.x, y: this.y, width: this.width, height: this.height };
   }
 }
