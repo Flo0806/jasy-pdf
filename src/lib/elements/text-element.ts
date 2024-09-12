@@ -1,6 +1,6 @@
 import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
-import { PDFElement, SizedElement } from "./pdf-element";
+import { PDFElement, SizedElement, SizedPDFElement } from "./pdf-element";
 export interface TextSegment {
   content: string;
   fontStyle?: FontStyle;
@@ -13,6 +13,8 @@ interface TextElementParams extends SizedElement {
   output?: any;
   x: number;
   y: number;
+  width?: number;
+  height?: number;
   fontSize: number;
   fontFamily?: string;
   fontStyle?: FontStyle;
@@ -21,16 +23,12 @@ interface TextElementParams extends SizedElement {
 }
 
 // @InjectObjectManager()
-export class TextElement extends PDFElement {
-  private x: number;
-  private y: number;
+export class TextElement extends SizedPDFElement {
   private fontSize: number;
   private fontFamily: string;
   private fontStyle: FontStyle;
   private color: [number, number, number];
   private content: string | TextSegment[];
-  private width!: number;
-  private height!: number;
 
   @InjectObjectManager()
   private _objectManager!: PDFObjectManager;
@@ -43,10 +41,11 @@ export class TextElement extends PDFElement {
     fontFamily = "Helvetica",
     fontStyle = FontStyle.Normal,
     color = [0, 0, 0],
+    width,
+    height,
   }: TextElementParams) {
-    super();
-    this.x = x;
-    this.y = y;
+    super({ x, y, width, height });
+
     this.fontSize = fontSize;
     this.fontFamily = fontFamily;
     this.fontStyle = fontStyle;

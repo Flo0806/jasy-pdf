@@ -2,6 +2,25 @@ export abstract class PDFElement {
   protected abstract getProps(): { [key: string]: any };
 }
 
+export abstract class SizedPDFElement extends PDFElement {
+  protected x: number;
+  protected y: number;
+  protected width?: number;
+  protected height?: number;
+
+  constructor(data: SizedElement) {
+    super();
+    this.x = data.x;
+    this.y = data.y;
+    this.width = data.width;
+    this.height = data.height;
+  }
+
+  protected getSize() {
+    return { x: this.x, y: this.y, width: this.width, height: this.height };
+  }
+}
+
 export interface WithChildren {
   children: PDFElement[];
 }
