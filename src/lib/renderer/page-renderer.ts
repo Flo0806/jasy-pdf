@@ -1,5 +1,6 @@
 import { TextElement } from "../elements";
 import { PageElement } from "../elements/page-element";
+import { PDFElement } from "../elements/pdf-element";
 import { PDFObjectManager } from "../utils/pdf-object-manager";
 import { TextRenderer } from "./text-renderer";
 
@@ -8,7 +9,7 @@ export class PageRenderer {
     let pageContent = "";
 
     // Pick the content of all elements of the page
-    page.elements.forEach((element) => {
+    page.getProps()["children"].forEach((element: PDFElement) => {
       if (element instanceof TextElement) {
         pageContent += TextRenderer.render(element, objectManager) + "\n";
       }
