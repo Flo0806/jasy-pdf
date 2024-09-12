@@ -63,7 +63,7 @@ class MyPDF extends PDFDocument {
 //     },
 //   ],
 // });
-
+// etst.
 const renderedPDF = MyPDF.render(); // PDFRenderer.render(pdf);
 console.log(renderedPDF);
 fs.writeFile("C:/Users/fheuberger/Downloads/test.pdf", renderedPDF, (err) => {
