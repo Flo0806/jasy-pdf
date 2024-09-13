@@ -8,6 +8,7 @@ import {
   FontStyle,
   PDFObjectManager,
 } from "../../src/lib/utils/pdf-object-manager";
+import { ContainerElement } from "../../src/lib/elements/container-element";
 
 class MyPDF extends PDFDocument {
   size = {};
@@ -29,14 +30,22 @@ class MyPDF extends PDFDocument {
       children: [
         new PageElement({
           children: [
-            new TextElement({
-              x: 150,
-              y: 250,
-              fontSize: 18,
-              color: [0, 0, 255],
-              fontFamily: "Courier",
-              content:
-                "This is a test. YES! It's a very long text. I wanna see if the pdf will be break into a new line!",
+            new ContainerElement({
+              x: 50,
+              y: 10,
+              width: 400,
+              height: 300,
+              children: [
+                new TextElement({
+                  x: 50,
+                  y: 0,
+                  fontSize: 11,
+                  color: [0, 0, 255],
+                  //fontFamily: "Courier",
+                  content:
+                    "This is a test. YES! It's a ve long text. I wanna see if the pdf will be break into a new line!",
+                }),
+              ],
             }),
           ],
         }),
@@ -66,7 +75,7 @@ class MyPDF extends PDFDocument {
 // etst.
 const renderedPDF = MyPDF.render(); // PDFRenderer.render(pdf);
 console.log(renderedPDF);
-fs.writeFile("C:/Users/fheuberger/Downloads/test.pdf", renderedPDF, (err) => {
+fs.writeFile("C:/Users/fh/Downloads/test.pdf", renderedPDF, (err) => {
   if (err) {
     console.error("Error writing file:", err);
   } else {

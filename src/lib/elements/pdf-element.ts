@@ -1,5 +1,9 @@
 export abstract class PDFElement {
-  protected abstract getProps(): { [key: string]: any };
+  abstract getProps(): { [key: string]: any };
+
+  abstract calculateLayout(
+    parentConstraints?: LayoutConstraints
+  ): LayoutConstraints | Promise<LayoutConstraints>;
 }
 
 export abstract class SizedPDFElement extends PDFElement {
@@ -21,6 +25,13 @@ export abstract class SizedPDFElement extends PDFElement {
   }
 }
 
+export interface LayoutConstraints {
+  x: number;
+  y: number;
+  width?: number;
+  height?: number;
+}
+
 export interface WithChildren {
   children: PDFElement[];
 }
@@ -40,10 +51,12 @@ export function isSizedElement(obj: any): obj is SizedElement {
   return "x" in obj && "y" in obj;
 }
 
-export function hasChildren(obj: any): obj is WithChildren {
+export function hasChildrenProp<T extends object>(
+  obj: T
+): obj is T & WithChildren {
   return "children" in obj;
 }
 
-export function hasChild(obj: any): obj is WithChild {
+export function hasChildProp<T extends object>(obj: T): obj is T & WithChild {
   return "child" in obj;
 }

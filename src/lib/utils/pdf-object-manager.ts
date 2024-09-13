@@ -1,4 +1,5 @@
 import { fontMetrics } from "../constants/font-metrics";
+import { pageFormats } from "../constants/page-sizes";
 
 interface FontIndexes {
   fontIndex: number;
@@ -110,6 +111,12 @@ export class PDFObjectManager {
   private objectPositions: number[] = [];
   private parentObjectNumber: number = 0;
   private fonts: FontManager = new FontManager(); // Save the fonts we're using in the pdf document
+  public pageFormat = pageFormats.a4;
+
+  constructor();
+  constructor(pageFormat?: number[]) {
+    if (pageFormat) this.pageFormat = pageFormat;
+  }
 
   // Add an object and return its number
   addObject(content: string): number {
@@ -200,19 +207,30 @@ export class PDFObjectManager {
   getStringWidth(text: string, fontFamily: string, fontSize: number): number {
     let totalWidth = 0;
 
+    // Lade die Schriftmetrik für die angegebene Schriftart
     const font = fontMetrics[fontFamily];
     if (!font) {
       throw new Error(`Font family "${fontFamily}" not found in font metrics.`);
     }
+    // Die Basiseinheit bei Type1-Schriften beträgt 1000
+    const baseUnit = 1000;
 
+    // Durchlaufe jedes Zeichen im Text und berechne die Gesamtbreite
     for (let i = 0; i < text.length; i++) {
       const char = text[i];
-      const charWidth = font[char] || font["a"]; // Nutze eine Standardbreite für unbekannte Zeichen (z.B. die Breite von 'a')
 
-      totalWidth += (charWidth / 1000) * fontSize; // Schriftgrößenfaktor
+      // Prüfe, ob das Zeichen in den Metriken existiert, ansonsten nutze Standardbreite
+      let charWidth = font[char];
+      if (!charWidth) {
+        console.log("NICHT GEFUNDEN", char);
+        charWidth = font["a"]; // Fallback zu 'a' für unbekannte Zeichen
+      }
+      // Addiere die Breite des Zeichens, skaliert nach Schriftgröße
+      console.log((charWidth / baseUnit) * fontSize);
+      totalWidth += (charWidth / baseUnit) * fontSize;
     }
 
-    return totalWidth;
+    return (totalWidth * 72) / 96;
   }
 
   getAllFontsRaw() {

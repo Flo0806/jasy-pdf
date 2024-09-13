@@ -10,6 +10,7 @@ export class PDFRenderer {
     // Header
     pdfContent += "%PDF-1.4\n";
 
+    document.calculateLayout();
     // Render pages and contents
     PDFDocumentRenderer.render(document, objectManager);
 

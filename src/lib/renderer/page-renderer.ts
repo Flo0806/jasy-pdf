@@ -1,7 +1,9 @@
 import { TextElement } from "../elements";
+import { ContainerElement } from "../elements/container-element";
 import { PageElement } from "../elements/page-element";
 import { PDFElement } from "../elements/pdf-element";
 import { PDFObjectManager } from "../utils/pdf-object-manager";
+import { ContainerRenderer } from "./container-renderer";
 import { TextRenderer } from "./text-renderer";
 
 export class PageRenderer {
@@ -12,6 +14,8 @@ export class PageRenderer {
     page.getProps()["children"].forEach((element: PDFElement) => {
       if (element instanceof TextElement) {
         pageContent += TextRenderer.render(element, objectManager) + "\n";
+      } else if (element instanceof ContainerElement) {
+        pageContent += ContainerRenderer.render(element, objectManager) + "\n";
       }
     });
 

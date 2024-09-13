@@ -79,7 +79,7 @@ export class TextRenderer {
     textElement: TextElement,
     objectManager: PDFObjectManager
   ): string {
-    const { x, y, fontSize, color, content, fontFamily } =
+    const { x, y, width, fontSize, color, content, fontFamily } =
       textElement.getProps();
     const colorString = color.map((c) => (c / 255).toFixed(3)).join(" ");
 
@@ -89,7 +89,7 @@ export class TextRenderer {
       fontSize,
       fontFamily,
       objectManager,
-      300
+      width || Number.NaN
     );
 
     return `BT ${colorString} rg ${fontSize} TL ${x} ${y} Td ${renderedContent} ET`;
@@ -115,6 +115,7 @@ export class TextRenderer {
       let currentLine = "";
       let currentWidth = 0;
       const lines: string[] = [];
+      maxWidth = (350 * 72) / 96;
 
       // Split the text into words, inclusive empty spaces
       const words = text.split(" ");
@@ -131,16 +132,19 @@ export class TextRenderer {
           fontFamily,
           fontSize
         );
+        console.log(word, wordWidth);
 
         // Check if the word is to big for the current line
         if (currentWidth + wordWidth > maxWidth) {
           lines.push(currentLine.trim());
+          console.log("NEW LINE", currentLine, currentWidth, wordWidth, word);
           currentLine = word;
           currentWidth = wordWidth;
         } else {
           // Add the word to the current line
           currentLine += index === 0 ? word : " " + word;
-          currentWidth += wordWidth + spaceWidth; // Update lines current width
+          currentWidth += wordWidth + spaceWidth;
+          //  currentWidth += wordWidth + spaceWidth; // Update lines current width
         }
       });
 

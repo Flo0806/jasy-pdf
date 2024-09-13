@@ -1,6 +1,11 @@
 import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
-import { PDFElement, SizedElement, SizedPDFElement } from "./pdf-element";
+import {
+  LayoutConstraints,
+  PDFElement,
+  SizedElement,
+  SizedPDFElement,
+} from "./pdf-element";
 export interface TextSegment {
   content: string;
   fontStyle?: FontStyle;
@@ -49,10 +54,38 @@ export class TextElement extends SizedPDFElement {
     this.content = content;
   }
 
+  calculateLayout(
+    parentConstraints?: LayoutConstraints
+  ): LayoutConstraints | Promise<LayoutConstraints> {
+    console.log("DATA", parentConstraints, this.y);
+    if (parentConstraints) {
+      this.x += parentConstraints.x;
+      this.y += parentConstraints.y;
+      if (parentConstraints.width) {
+        console.log(this.width, parentConstraints, this.x);
+        this.width = parentConstraints.width - this.x + parentConstraints.x;
+      }
+      if (parentConstraints.height)
+        this.height = parentConstraints.height - this.y;
+    }
+
+    this.normalizeCoordinates();
+    console.log("TEXT WIDTH", this.width);
+
+    return { x: this.x, y: this.y, width: this.width, height: this.height };
+  }
+
+  normalizeCoordinates() {
+    const pageHeight = this._objectManager.pageFormat[1];
+    this.y = pageHeight - this.y - (this.fontSize || 0);
+  }
+
   override getProps() {
     return {
       x: this.x,
       y: this.y,
+      width: this.width,
+      height: this.height,
       fontSize: this.fontSize,
       fontFamily: this.fontFamily,
       fontStyle: this.fontStyle,
