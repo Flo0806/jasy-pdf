@@ -41,9 +41,9 @@ class MyPDF extends PDFDocument {
                   y: 0,
                   fontSize: 11,
                   color: [0, 0, 255],
-                  //fontFamily: "Courier",
+                  fontFamily: "Times-Roman",
                   content:
-                    "This is a test. YES! It's a ve long text. I wanna see if the pdf will be break into a new line!",
+                    "This is a test. YES! It's a ve long text. I wanna see if the pdf will be brea into a new line!",
                 }),
               ],
             }),
