@@ -181,56 +181,51 @@ export class PDFObjectManager {
     fontFamily: keyof typeof fontMetrics,
     fontSize: number
   ): number {
-    // Überprüfen, ob die Schriftfamilie und das Zeichen in den fontMetrics vorhanden sind
+    // If the letter is available, use it. Otherwise fall back to "a"
     const font = fontMetrics[fontFamily];
     if (!font) {
       throw new Error(`Font family "${fontFamily}" not found in font metrics.`);
     }
 
     // Wenn das Zeichen nicht im Font-Metrics-Objekt ist, verwende eine Standardbreite (z.B. für nicht definierte Zeichen)
-    const charWidth = font[char] || font["a"]; // Nutze eine Standardbreite für unbekannte Zeichen (z.B. die Breite von 'a')
 
-    // Berechne die Zeichenbreite unter Berücksichtigung der Schriftgröße
+    // If the letter is available, use it. Otherwise fall back to "a"
+    let charWidth = font[char];
+    if (!charWidth) {
+      charWidth = font["a"]; // Fallback to 'a'
+    }
+
+    // Add the size of the letter
     const scaleFactor = fontSize / 1000;
     return charWidth * scaleFactor;
-  }
-
-  testText = "Start";
-  getTestText() {
-    return this.testText;
-  }
-
-  setTestText(text: string) {
-    this.testText = text;
   }
 
   getStringWidth(text: string, fontFamily: string, fontSize: number): number {
     let totalWidth = 0;
 
-    // Lade die Schriftmetrik für die angegebene Schriftart
+    // Load the metrics for the font family
     const font = fontMetrics[fontFamily];
     if (!font) {
       throw new Error(`Font family "${fontFamily}" not found in font metrics.`);
     }
-    // Die Basiseinheit bei Type1-Schriften beträgt 1000
+    // The base unit is 1000
     const baseUnit = 1000;
 
-    // Durchlaufe jedes Zeichen im Text und berechne die Gesamtbreite
+    // Loop each letter
     for (let i = 0; i < text.length; i++) {
       const char = text[i];
 
-      // Prüfe, ob das Zeichen in den Metriken existiert, ansonsten nutze Standardbreite
+      // If the letter is available, use it. Otherwise fall back to "a"
       let charWidth = font[char];
       if (!charWidth) {
-        console.log("NICHT GEFUNDEN", char);
-        charWidth = font["a"]; // Fallback zu 'a' für unbekannte Zeichen
+        charWidth = font["a"]; // Fallback to 'a'
       }
-      // Addiere die Breite des Zeichens, skaliert nach Schriftgröße
+      // Add the size of the letter
       console.log((charWidth / baseUnit) * fontSize);
       totalWidth += (charWidth / baseUnit) * fontSize;
     }
 
-    return (totalWidth * 72) / 96;
+    return totalWidth;
   }
 
   getAllFontsRaw() {
