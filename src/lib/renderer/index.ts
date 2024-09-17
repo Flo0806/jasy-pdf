@@ -5,3 +5,4 @@ export * from "./pdf-document-renderer";
 export * from "./pdf-renderer";
 export * from "./rectangle-renderer";
 export * from "./text-renderer";
+export * from "./expanded-renderer";

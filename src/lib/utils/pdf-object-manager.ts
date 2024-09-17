@@ -221,7 +221,6 @@ export class PDFObjectManager {
         charWidth = font["a"]; // Fallback to 'a'
       }
       // Add the size of the letter
-      console.log((charWidth / baseUnit) * fontSize);
       totalWidth += (charWidth / baseUnit) * fontSize;
     }
 

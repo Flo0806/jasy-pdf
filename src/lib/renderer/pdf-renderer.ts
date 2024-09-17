@@ -2,12 +2,13 @@ import { PDFDocumentElement } from "../elements/pdf-document-element";
 import { PDFDocumentRenderer } from "./pdf-document-renderer";
 import { PDFObjectManager } from "../utils/pdf-object-manager";
 import { RendererRegistry } from "../utils/renderer-registry";
-import { TextElement } from "../elements";
+import { ExpandedElement, TextElement } from "../elements";
 import { TextRenderer } from "./text-renderer";
 import { ContainerElement } from "../elements/container-element";
 import { RectangleElement } from "../elements/rectangle-element";
 import { ContainerRenderer } from "./container-renderer";
 import { RectangleRenderer } from "./rectangle-renderer";
+import { ExpandedRenderer } from "./expanded-renderer";
 
 export class PDFRenderer {
   static render(document: PDFDocumentElement): string {
@@ -17,6 +18,7 @@ export class PDFRenderer {
     RendererRegistry.register(TextElement, TextRenderer.render);
     RendererRegistry.register(ContainerElement, ContainerRenderer.render);
     RendererRegistry.register(RectangleElement, RectangleRenderer.render);
+    RendererRegistry.register(ExpandedElement, ExpandedRenderer.render);
 
     let pdfContent = "";
 

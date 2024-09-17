@@ -1,7 +1,5 @@
 import { PDFObjectManager } from "../utils/pdf-object-manager";
-import { ContainerElement } from "../elements/container-element";
-import { TextRenderer } from "./text-renderer"; // Für das Rendern von Textelementen
-import { TextElement } from "../elements";
+
 import { RectangleElement } from "../elements/rectangle-element";
 import { RendererRegistry } from "../utils/renderer-registry";
 
