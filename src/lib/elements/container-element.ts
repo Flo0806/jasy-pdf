@@ -1,6 +1,8 @@
+import { FlexLayoutHelper } from "../utils/flex-layout";
 import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
 import {
+  FlexiblePDFElement,
   LayoutConstraints,
   PDFElement,
   SizedElement,
@@ -27,9 +29,7 @@ export class ContainerElement extends SizedPDFElement {
     this.children = children;
   }
 
-  calculateLayout(
-    parentConstraints?: LayoutConstraints
-  ): LayoutConstraints | Promise<LayoutConstraints> {
+  calculateLayout(parentConstraints?: LayoutConstraints): LayoutConstraints {
     if (parentConstraints) {
       if (parentConstraints.width) this.width = parentConstraints.width;
       if (parentConstraints.height) this.height = parentConstraints.height;
@@ -44,8 +44,32 @@ export class ContainerElement extends SizedPDFElement {
       height: this.height,
     };
 
-    if (this.children)
-      this.children.forEach((child) => child.calculateLayout(result));
+    if (this.children) {
+      // Verwende die FlexLayoutHelper-Klasse, um das Layout zu berechnen
+      const { positions, usedHeight, totalFlex } =
+        FlexLayoutHelper.calculateFlexLayout(this.children, result, this.y);
+
+      // Setze alle Positionen basierend auf den berechneten Werten
+      const remainingHeight = Math.max(result.height || 0 - usedHeight, 0);
+
+      for (let position of positions) {
+        const { element, y } = position;
+        if (element instanceof FlexiblePDFElement) {
+          const flexHeight = (element.getFlex() / totalFlex) * remainingHeight;
+          element.calculateLayout({
+            ...result,
+            y: y,
+            height: flexHeight,
+          });
+        } else {
+          // Feste Elemente wurden bereits berechnet, setze einfach die Y-Position
+          element.calculateLayout({
+            ...result,
+            y: y,
+          });
+        }
+      }
+    }
 
     this.normalizeCoordinates();
     return result;
