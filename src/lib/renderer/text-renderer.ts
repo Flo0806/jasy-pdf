@@ -115,7 +115,6 @@ export class TextRenderer {
       let currentLine = "";
       let currentWidth = 0;
       const lines: string[] = [];
-      maxWidth = (350 * 72) / 96;
 
       // Split the text into words, inclusive empty spaces
       const words = text.split(" ");
@@ -132,7 +131,7 @@ export class TextRenderer {
           fontFamily,
           fontSize
         );
-        console.log(word, wordWidth);
+        console.log(word, wordWidth, maxWidth, currentWidth);
 
         // Check if the word is to big for the current line
         if (currentWidth + wordWidth > maxWidth) {
@@ -143,8 +142,7 @@ export class TextRenderer {
         } else {
           // Add the word to the current line
           currentLine += index === 0 ? word : " " + word;
-          currentWidth += wordWidth + spaceWidth;
-          //  currentWidth += wordWidth + spaceWidth; // Update lines current width
+          currentWidth += wordWidth + spaceWidth; // Update lines current width
         }
       });
 
