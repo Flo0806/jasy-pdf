@@ -3,7 +3,7 @@ export abstract class PDFElement {
 
   abstract calculateLayout(
     parentConstraints?: LayoutConstraints
-  ): LayoutConstraints | Promise<LayoutConstraints>;
+  ): LayoutConstraints;
 }
 
 export abstract class SizedPDFElement extends PDFElement {
@@ -25,6 +25,35 @@ export abstract class SizedPDFElement extends PDFElement {
   }
 }
 
+export abstract class FlexiblePDFElement extends PDFElement {
+  protected flex: number;
+  protected verticalChildAlignment: VerticalAlignment;
+
+  constructor(data: FlexibleElement) {
+    super();
+    this.flex = data.flex;
+    this.verticalChildAlignment =
+      data.verticalChildAlignment || VerticalAlignment.middle;
+  }
+
+  getFlex(): number {
+    return this.flex;
+  }
+}
+
+export enum HorizontalAlignment {
+  left = "LEFT",
+  right = "RIGHT",
+  center = "CENTER",
+  block = "BLOCK",
+}
+
+export enum VerticalAlignment {
+  top = "TOP",
+  middle = "MIDDLE",
+  bottom = "BOTTOM",
+}
+
 export interface LayoutConstraints {
   x: number;
   y: number;
@@ -38,6 +67,11 @@ export interface WithChildren {
 
 export interface WithChild {
   child: PDFElement;
+}
+
+export interface FlexibleElement {
+  flex: number;
+  verticalChildAlignment?: VerticalAlignment;
 }
 
 export interface SizedElement {
