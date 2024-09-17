@@ -1,5 +1,6 @@
 import { PDFObjectManager } from "../../utils/pdf-object-manager";
 import { InjectObjectManager } from "../../utils/pdf-object-manager-decorator";
+import { Validator } from "../../validators/element-validator";
 import {
   PDFElement,
   LayoutConstraints,
@@ -33,6 +34,8 @@ export class ExpandedElement extends FlexiblePDFElement {
       this.x += parentConstraints.x;
       this.y += parentConstraints.y;
     }
+
+    Validator.validateFlexElement(this);
 
     const result = {
       x: this.x,
