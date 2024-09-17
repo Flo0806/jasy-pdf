@@ -3,6 +3,7 @@ import {
   PDFElement,
   FlexiblePDFElement,
   hasChildProp,
+  SizedPDFElement,
 } from "../elements/pdf-element";
 import { PDFObjectManager } from "../utils/pdf-object-manager";
 
@@ -43,6 +44,26 @@ export class Validator {
     // Logical validation: Flexible and fixed elements
     if (element instanceof FlexiblePDFElement) {
       this.validateFlexElement(element);
+    }
+  }
+
+  static validateSizedElement(element: SizedPDFElement): void {
+    const { x, y, width, height } = element.getProps();
+    if (x < 0 || y < 0) {
+      throw new Error(
+        `Element ${element.constructor.name} has invalid coordinates (x: ${x}, y: ${y})`
+      );
+    }
+
+    if (
+      width === undefined ||
+      height === undefined ||
+      width <= 0 ||
+      height <= 0
+    ) {
+      throw new Error(
+        `Element ${element.constructor.name} has invalid size (width: ${width}, height: ${height})`
+      );
     }
   }
 
