@@ -2,6 +2,7 @@ import { PDFDocumentElement } from "../../src/lib/elements/pdf-document-element"
 import { PageElement } from "../../src/lib/elements/page-element";
 import { TextElement } from "../../src/lib/elements/text-element";
 import { PDFRenderer } from "../../src/lib/renderer/pdf-renderer";
+import { RectangleElement } from "../../src/lib/elements/rectangle-element";
 import { PDFDocument } from "../../src/lib/renderer/pdf-document-class";
 import fs from "fs";
 import {
@@ -9,12 +10,12 @@ import {
   PDFObjectManager,
 } from "../../src/lib/utils/pdf-object-manager";
 import { ContainerElement } from "../../src/lib/elements/container-element";
+import { FlexiblePDFElement } from "../../src/lib/elements/pdf-element";
+import { ExpandedElement } from "../../src/lib/elements";
 
 class MyPDF extends PDFDocument {
   size = {};
   asdf: TextElement = new TextElement({
-    x: 100,
-    y: 200,
     fontSize: 24,
     color: [255, 0, 0],
     content: this.giveName(),
@@ -35,15 +36,30 @@ class MyPDF extends PDFDocument {
               y: 10,
               width: 400,
               height: 300,
+              color: [255, 0, 0],
+              backgroundColor: [100, 255, 50],
               children: [
-                new TextElement({
-                  x: 50,
-                  y: 0,
-                  fontSize: 11,
-                  color: [0, 0, 255],
-                  fontFamily: "Times-Roman",
-                  content:
-                    "This is a test. YES! It's a ve long text. I wanna see if the pdf will be brea into a new line!",
+                // new RectangleElement({
+                //   color: [0, 0, 255],
+                //   backgroundColor: [255, 0, 50],
+                // }),
+                new ExpandedElement({
+                  flex: 3,
+                  child: new TextElement({
+                    fontSize: 11,
+                    color: [0, 0, 255],
+                    fontFamily: "Times-Roman",
+                    content: "This is Text 1",
+                  }),
+                }),
+                new ExpandedElement({
+                  flex: 2,
+                  child: new TextElement({
+                    fontSize: 11,
+                    color: [0, 0, 255],
+                    fontFamily: "Times-Roman",
+                    content: "This is a Text 2",
+                  }),
                 }),
               ],
             }),
