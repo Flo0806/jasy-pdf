@@ -2,8 +2,11 @@ import { TextElement } from "../elements";
 import { ContainerElement } from "../elements/container-element";
 import { PageElement } from "../elements/page-element";
 import { PDFElement } from "../elements/pdf-element";
+import { RectangleElement } from "../elements/rectangle-element";
 import { PDFObjectManager } from "../utils/pdf-object-manager";
+import { RendererRegistry } from "../utils/renderer-registry";
 import { ContainerRenderer } from "./container-renderer";
+import { RectangleRenderer } from "./rectangle-renderer";
 import { TextRenderer } from "./text-renderer";
 
 export class PageRenderer {
@@ -12,10 +15,9 @@ export class PageRenderer {
 
     // Pick the content of all elements of the page
     page.getProps()["children"].forEach((element: PDFElement) => {
-      if (element instanceof TextElement) {
-        pageContent += TextRenderer.render(element, objectManager) + "\n";
-      } else if (element instanceof ContainerElement) {
-        pageContent += ContainerRenderer.render(element, objectManager) + "\n";
+      const renderer = RendererRegistry.getRenderer(element);
+      if (renderer) {
+        pageContent += renderer(element, objectManager) + "\n";
       }
     });
 

@@ -1,10 +1,23 @@
 import { PDFDocumentElement } from "../elements/pdf-document-element";
 import { PDFDocumentRenderer } from "./pdf-document-renderer";
-import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
+import { PDFObjectManager } from "../utils/pdf-object-manager";
+import { RendererRegistry } from "../utils/renderer-registry";
+import { TextElement } from "../elements";
+import { TextRenderer } from "./text-renderer";
+import { ContainerElement } from "../elements/container-element";
+import { RectangleElement } from "../elements/rectangle-element";
+import { ContainerRenderer } from "./container-renderer";
+import { RectangleRenderer } from "./rectangle-renderer";
 
 export class PDFRenderer {
   static render(document: PDFDocumentElement): string {
     const objectManager = new PDFObjectManager();
+
+    // Register all Renderer
+    RendererRegistry.register(TextElement, TextRenderer.render);
+    RendererRegistry.register(ContainerElement, ContainerRenderer.render);
+    RendererRegistry.register(RectangleElement, RectangleRenderer.render);
+
     let pdfContent = "";
 
     // Header

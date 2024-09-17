@@ -84,7 +84,7 @@ export class TextRenderer {
     const colorString = color.map((c) => (c / 255).toFixed(3)).join(" ");
 
     // Private Funktion, um den Content zu rendern
-    const renderedContent = this._renderContent(
+    const renderedContent = TextRenderer._renderContent(
       content,
       fontSize,
       fontFamily,
