@@ -43,14 +43,11 @@ class MyPDF extends PDFDocument {
                 //   color: [0, 0, 255],
                 //   backgroundColor: [255, 0, 50],
                 // }),
-                new ExpandedElement({
-                  flex: 3,
-                  child: new TextElement({
-                    fontSize: 11,
-                    color: [0, 0, 255],
-                    fontFamily: "Times-Roman",
-                    content: "This is Text 1",
-                  }),
+                new TextElement({
+                  fontSize: 11,
+                  color: [0, 0, 255],
+                  fontFamily: "Times-Roman",
+                  content: "This is Text 1",
                 }),
                 new ExpandedElement({
                   flex: 2,
