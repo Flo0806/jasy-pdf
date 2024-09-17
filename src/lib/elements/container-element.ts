@@ -8,11 +8,15 @@ import {
   WithChildren,
 } from "./pdf-element";
 
-interface ContainerElementParams extends SizedElement, WithChildren {}
+interface ContainerElementParams extends SizedElement, WithChildren {
+  color?: [number, number, number];
+  backgroundColor?: [number, number, number];
+  borderWidth?: number;
+}
 
 // @InjectObjectManager()
 export class ContainerElement extends SizedPDFElement {
-  private children: PDFElement[];
+  private children?: PDFElement[];
 
   @InjectObjectManager()
   private _objectManager!: PDFObjectManager;
@@ -40,9 +44,8 @@ export class ContainerElement extends SizedPDFElement {
       height: this.height,
     };
 
-    console.log("RESULT RESULT", result);
-
-    this.children.forEach((child) => child.calculateLayout(result));
+    if (this.children)
+      this.children.forEach((child) => child.calculateLayout(result));
 
     this.normalizeCoordinates();
     return result;
