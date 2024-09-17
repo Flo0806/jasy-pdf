@@ -12,9 +12,7 @@ export class PageElement extends PDFElement {
     this.children = children;
   }
 
-  calculateLayout(
-    parentConstraints: LayoutConstraints
-  ): LayoutConstraints | Promise<LayoutConstraints> {
+  calculateLayout(parentConstraints: LayoutConstraints): LayoutConstraints {
     const result = { x: 0, y: 0 };
     // Inside a page we must do nothing
     this.children.forEach((child) => child.calculateLayout(result));

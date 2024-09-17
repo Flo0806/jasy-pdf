@@ -1,3 +1,4 @@
+import { TextRenderer } from "../renderer";
 import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
 import {
@@ -13,7 +14,7 @@ export interface TextSegment {
   fontFamily?: string;
 }
 
-interface TextElementParams extends SizedElement {
+interface TextElementParams {
   id?: string;
   output?: any;
   fontSize: number;
@@ -35,17 +36,13 @@ export class TextElement extends SizedPDFElement {
   private _objectManager!: PDFObjectManager;
 
   constructor({
-    x,
-    y,
     fontSize,
     content,
     fontFamily = "Helvetica",
     fontStyle = FontStyle.Normal,
     color = [0, 0, 0],
-    width,
-    height,
   }: TextElementParams) {
-    super({ x, y, width, height });
+    super({ x: 0, y: 0 });
 
     this.fontSize = fontSize;
     this.fontFamily = fontFamily;
@@ -54,17 +51,23 @@ export class TextElement extends SizedPDFElement {
     this.content = content;
   }
 
-  calculateLayout(
-    parentConstraints?: LayoutConstraints
-  ): LayoutConstraints | Promise<LayoutConstraints> {
+  calculateLayout(parentConstraints?: LayoutConstraints): LayoutConstraints {
     if (parentConstraints) {
-      this.x += parentConstraints.x;
-      this.y += parentConstraints.y;
+      this.x = parentConstraints.x;
+      this.y = parentConstraints.y;
       if (parentConstraints.width) {
         this.width = parentConstraints.width - this.x + parentConstraints.x;
       }
-      if (parentConstraints.height)
-        this.height = parentConstraints.height - this.y;
+      const textHeight = TextRenderer.calculateTextHeight(
+        this.content,
+        this.fontSize,
+        this.fontFamily,
+        this._objectManager,
+        this.width || 0
+      );
+      this.height = textHeight;
+      // if (parentConstraints.height)
+      //   this.height = parentConstraints.height - this.y;
     }
 
     this.normalizeCoordinates();

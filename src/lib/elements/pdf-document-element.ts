@@ -15,9 +15,7 @@ export class PDFDocumentElement extends PDFElement {
     this.children = children;
   }
 
-  calculateLayout(
-    parentConstraints?: LayoutConstraints
-  ): LayoutConstraints | Promise<LayoutConstraints> {
+  calculateLayout(parentConstraints?: LayoutConstraints): LayoutConstraints {
     const result = { x: 0, y: 0 };
     this.children.forEach((child) => child.calculateLayout(result));
     return result;

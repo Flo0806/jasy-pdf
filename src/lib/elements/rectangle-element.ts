@@ -24,16 +24,14 @@ export class RectangleElement extends SizedPDFElement {
   private _objectManager!: PDFObjectManager;
 
   constructor({
-    x,
-    y,
-    width,
-    height,
     children = [],
     color = [0, 0, 0],
     backgroundColor,
     borderWidth,
+    width,
+    height,
   }: RectangleElementParams) {
-    super({ x, y, width, height });
+    super({ x: 0, y: 0, width, height });
 
     this.children = children;
     this.color = color;
@@ -41,19 +39,13 @@ export class RectangleElement extends SizedPDFElement {
     this.borderWidth = borderWidth ? borderWidth : 1;
   }
 
-  calculateLayout(
-    parentConstraints?: LayoutConstraints
-  ): LayoutConstraints | Promise<LayoutConstraints> {
+  calculateLayout(parentConstraints?: LayoutConstraints): LayoutConstraints {
     if (parentConstraints) {
       if (parentConstraints.width) {
-        const calculatedWidth = parentConstraints.width - this.x;
-        this.width =
-          calculatedWidth < (this.width || 0) ? calculatedWidth : this.width;
+        this.width = parentConstraints.width;
       }
       if (parentConstraints.height) {
-        const calculatedHeight = parentConstraints.height - this.x;
-        this.width =
-          calculatedHeight < (this.height || 0) ? calculatedHeight : this.width;
+        this.height = parentConstraints.height;
       }
       this.x += parentConstraints.x;
       this.y += parentConstraints.y;
@@ -75,7 +67,7 @@ export class RectangleElement extends SizedPDFElement {
     this.y = pageHeight - this.y - (this.height || 0);
   }
 
-  override getProps(): RectangleElementParams {
+  override getProps() {
     return {
       x: this.x,
       y: this.y,
