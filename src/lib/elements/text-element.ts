@@ -57,12 +57,10 @@ export class TextElement extends SizedPDFElement {
   calculateLayout(
     parentConstraints?: LayoutConstraints
   ): LayoutConstraints | Promise<LayoutConstraints> {
-    console.log("DATA", parentConstraints, this.y);
     if (parentConstraints) {
       this.x += parentConstraints.x;
       this.y += parentConstraints.y;
       if (parentConstraints.width) {
-        console.log(this.width, parentConstraints, this.x);
         this.width = parentConstraints.width - this.x + parentConstraints.x;
       }
       if (parentConstraints.height)
@@ -70,7 +68,6 @@ export class TextElement extends SizedPDFElement {
     }
 
     this.normalizeCoordinates();
-    console.log("TEXT WIDTH", this.width);
 
     return { x: this.x, y: this.y, width: this.width, height: this.height };
   }

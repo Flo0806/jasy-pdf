@@ -33,7 +33,7 @@ export interface LayoutConstraints {
 }
 
 export interface WithChildren {
-  children: PDFElement[];
+  children?: PDFElement[];
 }
 
 export interface WithChild {
