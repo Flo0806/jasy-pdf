@@ -80,6 +80,18 @@ export class TextElement extends SizedPDFElement {
     this.y = pageHeight - this.y - (this.fontSize || 0);
   }
 
+  override getSize(): SizedElement {
+    const textHeight = TextRenderer.calculateTextHeight(
+      this.content,
+      this.fontSize,
+      this.fontFamily,
+      this._objectManager,
+      this.width || 0
+    );
+
+    return { x: this.x, y: this.y, width: this.width, height: textHeight };
+  }
+
   override getProps() {
     return {
       x: this.x,

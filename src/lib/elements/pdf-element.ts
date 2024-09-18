@@ -4,8 +4,6 @@ export abstract class PDFElement {
   abstract calculateLayout(
     parentConstraints?: LayoutConstraints
   ): LayoutConstraints;
-
-  abstract getSize(): SizedElement;
 }
 
 export abstract class SizedPDFElement extends PDFElement {
@@ -22,7 +20,7 @@ export abstract class SizedPDFElement extends PDFElement {
     this.height = data.height;
   }
 
-  override getSize(): SizedElement {
+  public getSize(): SizedElement {
     return { x: this.x, y: this.y, width: this.width, height: this.height };
   }
 }

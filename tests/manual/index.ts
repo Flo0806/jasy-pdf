@@ -11,7 +11,7 @@ import {
 } from "../../src/lib/utils/pdf-object-manager";
 import { ContainerElement } from "../../src/lib/elements/container-element";
 import { FlexiblePDFElement } from "../../src/lib/elements/pdf-element";
-import { ExpandedElement } from "../../src/lib/elements";
+import { ExpandedElement, PaddingElement } from "../../src/lib/elements";
 
 class MyPDF extends PDFDocument {
   size = {};
@@ -33,7 +33,7 @@ class MyPDF extends PDFDocument {
           children: [
             new ContainerElement({
               x: 50,
-              y: 10,
+              y: 0,
               width: 400,
               height: 300,
               color: [255, 0, 0],
@@ -43,11 +43,14 @@ class MyPDF extends PDFDocument {
                 //   color: [0, 0, 255],
                 //   backgroundColor: [255, 0, 50],
                 // }),
-                new TextElement({
-                  fontSize: 11,
-                  color: [0, 0, 255],
-                  fontFamily: "Times-Roman",
-                  content: "This is Text 1",
+                new PaddingElement({
+                  margin: [10, 10, 10, 10],
+                  child: new TextElement({
+                    fontSize: 11,
+                    color: [0, 0, 255],
+                    fontFamily: "Times-Roman",
+                    content: "This is Text 1",
+                  }),
                 }),
                 new ExpandedElement({
                   flex: 2,

@@ -42,36 +42,34 @@ export class PaddingElement extends SizedPDFElement {
     };
     if (parentConstraints) {
       if (parentConstraints.width) this.width = parentConstraints.width || 0;
-      if (parentConstraints.height) this.height = parentConstraints.height || 0;
+      //if (parentConstraints.height) this.height = parentConstraints.height || 0;
       this.x = parentConstraints.x;
       this.y = parentConstraints.y;
 
-      // result = this.adjustDimensionsForMargin(
-      //   this.x,
-      //   this.y,
-      //   this.width!,
-      //   this.height!,
-      //   this.margin
-      // );
+      result = this.adjustDimensionsForPadding(
+        this.x,
+        this.y,
+        this.width!,
+        this.height!,
+        this.margin
+      );
     }
 
-    result = {
-      x: this.x,
-      y: this.y,
-      width: this.width,
-      height: this.height,
-    };
+    const childResult = this.child.calculateLayout(result);
+    const [marginTop, marginRight, marginBottom, marginLeft] = this.margin;
+    this.height = (childResult.height || 0) + marginTop + marginLeft;
+    console.log(this.height);
+    result.height = this.height;
 
-    console.log("PADDING", result);
     Validator.validateSizedElement(this);
 
-    this.child.calculateLayout(result);
+    console.log(result, childResult);
 
     this.normalizeCoordinates();
     return result;
   }
 
-  adjustDimensionsForMargin(
+  adjustDimensionsForPadding(
     x: number,
     y: number,
     width: number,
@@ -80,9 +78,9 @@ export class PaddingElement extends SizedPDFElement {
   ): { x: number; y: number; width: number; height: number } {
     const [marginTop, marginRight, marginBottom, marginLeft] = margin;
 
-    // Die neue Position und Größe des Elements anpassen
-    const adjustedX = x + marginLeft; // Die x-Position wird nach rechts verschoben um das left margin
-    const adjustedY = y - marginTop; // Die y-Position wird nach unten verschoben um das top margin
+    // Calculate the new position and size of the child element
+    const adjustedX = x + marginLeft; // Move x +marginLeft to right
+    const adjustedY = y + marginTop; // Move y +marginTop down - normaly we start in the left-bottom corner. But we transform it to regular left-top corner
     const adjustedWidth = width - marginLeft - marginRight; // Die Breite wird verringert um left + right margin
     const adjustedHeight = height - marginTop - marginBottom; // Die Höhe wird verringert um top + bottom margin
 
