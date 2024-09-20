@@ -1,6 +1,5 @@
 import { fontMetrics } from "../constants/font-metrics";
 import { pageFormats } from "../constants/page-sizes";
-import { utf8ToWindows1252 } from "./utf8-to-windows1252-encoder";
 
 interface FontIndexes {
   fontIndex: number;
