@@ -1,9 +1,12 @@
 import { PDFDocumentElement } from "../elements";
 import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
+import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
 import { PDFRenderer } from "./pdf-renderer";
 
 export abstract class PDFDocument {
-  private _objectManager: PDFObjectManager;
+  @InjectObjectManager()
+  private _objectManager!: PDFObjectManager;
+
   private child!: PDFDocumentElement;
   //#region  Helper
   // Method to register all standard fonts
@@ -77,7 +80,7 @@ export abstract class PDFDocument {
       {
         fontName: "ITC Zapf Dingbats",
         fontStyle: FontStyle.Normal,
-        fullName: "ITC Zapf Dingbats",
+        fullName: "ZapfDingbats",
       },
     ];
 
@@ -86,28 +89,9 @@ export abstract class PDFDocument {
     );
   }
   //#endregion
-  protected giveName() {
-    return "Hallo";
-  }
   constructor() {
-    this._objectManager = new PDFObjectManager();
-
     // Add all standard font families
     this.registerStandardFonts(this._objectManager);
-    this.injectObjectManager(this.child);
-  }
-
-  private injectObjectManager(element: any): void {
-    if (element === undefined) return;
-
-    element._objectManager = this._objectManager;
-
-    if (element.pages && element.pages.length) {
-      element.pages.forEach((child: any) => this.injectObjectManager(child));
-    }
-    if (element.elements && element.elements.length) {
-      element.elements.forEach((child: any) => this.injectObjectManager(child));
-    }
   }
 
   get objectManager() {

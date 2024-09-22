@@ -38,7 +38,7 @@ export class RectangleRenderer {
         // Pick the content of all elements of the page
         const renderer = RendererRegistry.getRenderer(child);
         if (renderer) {
-          renderedContent += renderer(child, objectManager) + "\n";
+          renderedContent += renderer(child, objectManager);
         }
       });
 

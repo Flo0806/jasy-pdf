@@ -10,11 +10,13 @@ import { ContainerRenderer } from "./container-renderer";
 import { RectangleRenderer } from "./rectangle-renderer";
 import { ExpandedRenderer } from "./expanded-renderer";
 import { PaddingRenderer } from "./padding-renderer";
+import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
 
 export class PDFRenderer {
-  static render(document: PDFDocumentElement): string {
-    const objectManager = new PDFObjectManager();
+  @InjectObjectManager()
+  private static _objectManager: PDFObjectManager;
 
+  static render(document: PDFDocumentElement): string {
     // Register all Renderer
     RendererRegistry.register(TextElement, TextRenderer.render);
     RendererRegistry.register(ContainerElement, ContainerRenderer.render);
@@ -25,23 +27,23 @@ export class PDFRenderer {
     let pdfContent = "";
 
     // Header
-    pdfContent += "%PDF-1.4\n";
+    pdfContent += "%PDF-1.3\n";
 
     document.calculateLayout();
     // Render pages and contents
-    PDFDocumentRenderer.render(document, objectManager);
+    PDFDocumentRenderer.render(document, PDFRenderer._objectManager);
 
     // Add catalog objects
-    const catalogObject = `<< /Type /Catalog /Pages ${objectManager.getParentObjectNumber()} 0 R >>`;
-    objectManager.addObject(catalogObject);
+    const catalogObject = `<< /Type /Catalog /Pages ${PDFRenderer._objectManager.getParentObjectNumber()} 0 R >>`;
+    PDFRenderer._objectManager.addObject(catalogObject);
 
     // Add rendered objects
-    pdfContent += objectManager.getRenderedObjects();
+    pdfContent += PDFRenderer._objectManager.getRenderedObjects();
 
     // Add XRef table and trailer
     const startxref = pdfContent.length;
-    pdfContent += objectManager.getXRefTable();
-    pdfContent += objectManager.getTrailerAndXRef(startxref);
+    pdfContent += PDFRenderer._objectManager.getXRefTable();
+    pdfContent += PDFRenderer._objectManager.getTrailerAndXRef(startxref);
 
     return pdfContent;
   }

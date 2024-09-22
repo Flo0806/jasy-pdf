@@ -1,13 +1,7 @@
-import { TextElement } from "../elements";
-import { ContainerElement } from "../elements/container-element";
 import { PageElement } from "../elements/page-element";
 import { PDFElement } from "../elements/pdf-element";
-import { RectangleElement } from "../elements/rectangle-element";
 import { PDFObjectManager } from "../utils/pdf-object-manager";
 import { RendererRegistry } from "../utils/renderer-registry";
-import { ContainerRenderer } from "./container-renderer";
-import { RectangleRenderer } from "./rectangle-renderer";
-import { TextRenderer } from "./text-renderer";
 
 export class PageRenderer {
   static render(page: PageElement, objectManager: PDFObjectManager): number {
@@ -17,18 +11,17 @@ export class PageRenderer {
     page.getProps()["children"].forEach((element: PDFElement) => {
       const renderer = RendererRegistry.getRenderer(element);
       if (renderer) {
-        pageContent += renderer(element, objectManager) + "\n";
+        pageContent += renderer(element, objectManager);
       }
     });
 
     // Add the page content as a new object (content stream)
     const contentObjectNumber = objectManager.addObject(
-      `<< /Length ${pageContent.length} >>\nstream\n${pageContent}endstream`
+      `<</Length ${pageContent.length}>>\nstream\n${pageContent}endstream`
     );
 
     // Get the parent object number dynamically (linked with the page object)
     const parentObjectNumber = objectManager.getParentObjectNumber(); // Get parent object number
-    console.log("Parent Object Number:", parentObjectNumber);
 
     // Page object with MediaBox
     // - Get all fonts and add it to the page (reference)
@@ -38,10 +31,10 @@ export class PageRenderer {
       const fontRef = `/F${value.fontIndex} ${value.resourceIndex} 0 R`;
       fontReferences.push(fontRef);
     });
-    // const pageObject = `<< /Type /Page /Parent ${parentObjectNumber} 0 R /Contents ${contentObjectNumber} 0 R /Resources << /Font << /F${fontData.fontIndex} ${fontData.resourceIndex} 0 R >> >> /MediaBox [0 0 595 842] >>`;
-    const pageObject = `<< /Type /Page /Parent ${parentObjectNumber} 0 R /Contents ${contentObjectNumber} 0 R /Resources << /Font << ${fontReferences.join(
-      " "
-    )} >> >> /MediaBox [0 0 595 842] >>`;
+
+    const pageObject = `<< /Type /Page /Parent ${parentObjectNumber} 0 R /Contents ${contentObjectNumber} 0 R /Resources <<\n/Font <<\n${fontReferences.join(
+      "\n"
+    )}\n>>\n>>\n/MediaBox [0 0 595 842] >>`;
 
     // Add page as new object and return the page number
     return objectManager.addObject(pageObject);
