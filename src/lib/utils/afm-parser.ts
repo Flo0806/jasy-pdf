@@ -22,10 +22,10 @@ export class AFMParser {
         const unicodeHex = parts[0];
         const glyphName = parts[1];
 
-        // Wandelt den Unicode-Hex-Code in das entsprechende Zeichen um
+        // Converts the Unicode hex code into the corresponding character
         const unicodeChar = String.fromCharCode(parseInt(unicodeHex, 16));
 
-        // Fügt das Zeichen als Schlüssel und den Glyphen-Namen als Wert in die Liste ein
+        // Adds the character as the key and the glyph name as the value in the list
         this.glyphMap[unicodeChar] = glyphName;
       }
     }
@@ -69,8 +69,6 @@ export class AFMParser {
         this.kerningPairs[pair] = kerning;
       }
     }
-
-    // console.log(this.advanceWidths);
   }
 
   private parseCharMetrics(
