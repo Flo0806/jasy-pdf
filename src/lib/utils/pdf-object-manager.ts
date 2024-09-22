@@ -1,5 +1,7 @@
-import { fontMetrics } from "../constants/font-metrics";
 import { pageFormats } from "../constants/page-sizes";
+import * as fs from "fs";
+import * as path from "path";
+import { AFMParser } from "./afm-parser";
 
 interface FontIndexes {
   fontIndex: number;
@@ -99,6 +101,13 @@ export class PDFObjectManager {
   private fonts: FontManager = new FontManager(); // Stores the fonts
   public pageFormat = pageFormats.a4;
 
+  private afmParsers: {
+    fontName: string;
+    fontStyle: FontStyle;
+    fullFontName?: string;
+    parser: AFMParser;
+  }[] = [];
+
   constructor();
   constructor(pageFormat?: number[]) {
     if (pageFormat) this.pageFormat = pageFormat;
@@ -156,6 +165,21 @@ export class PDFObjectManager {
       return this.fonts.getFont(fontName, fontStyle)!; // Already exists? Return it!
     }
 
+    const afmFilePath = path.resolve(
+      __dirname,
+      "../",
+      `assets/${fullName}.afm`
+    );
+    if (fs.existsSync(afmFilePath)) {
+      const data = fs.readFileSync(afmFilePath, "utf-8");
+      this.afmParsers.push({
+        fontName,
+        fontStyle,
+        fullFontName: fullName,
+        parser: new AFMParser(data),
+      });
+    }
+
     const resourceNumber = this.objects.length + 1; // New resource number
     const fontNumber = this.fonts.getLastFontIndex() + 1; // New font index number
     this.fonts.addFont(fontName, fontNumber, resourceNumber, fontStyle); // Store it
@@ -171,49 +195,121 @@ export class PDFObjectManager {
     };
   }
 
-  // Calculates the width of a single character based on the font metrics
-  getCharWidth(
-    char: string,
-    fontFamily: keyof typeof fontMetrics,
-    fontSize: number
-  ): number {
-    const font = fontMetrics[fontFamily];
-    if (!font) {
-      throw new Error(`Font family "${fontFamily}" not found in font metrics.`);
-    }
-
-    let charWidth = font[char];
-    if (!charWidth) {
-      charWidth = font["a"]; // Fallback to 'a'
-    }
-
-    const scaleFactor = fontSize / 1000;
-    return charWidth * scaleFactor;
-  }
-
-  // Calculates the width of a string based on the font metrics
-  getStringWidth(
+  // Returns the current width of a text, included kernings
+  public getStringWidth(
     text: string,
-    fontFamily: keyof typeof fontMetrics,
-    fontSize: number
+    fontFamily: string,
+    fontSize: number,
+    fontStyle: FontStyle
   ): number {
-    let totalWidth = 0;
-    const font = fontMetrics[fontFamily];
-    if (!font) {
-      throw new Error(`Font family "${fontFamily}" not found in font metrics.`);
-    }
+    let width = 0;
 
-    const baseUnit = 1000;
+    // We must calculate each sign
     for (let i = 0; i < text.length; i++) {
       const char = text[i];
-      let charWidth = font[char];
-      if (!charWidth) {
-        charWidth = font["a"]; // Fallback to 'a'
+      const nextChar = text[i + 1] || null;
+
+      // Get signs width
+      const charWidth = this.getCharWidth(
+        char,
+        fontSize,
+        undefined,
+        fontFamily,
+        fontStyle
+      );
+      width += charWidth;
+
+      // If a next sign available calculate the kerning
+      if (nextChar) {
+        const kerning = this.getKerning(
+          char,
+          nextChar,
+          undefined,
+          fontFamily,
+          fontStyle
+        );
+        width += kerning * fontSize; // Kerning must be scaled with the font size
       }
-      totalWidth += (charWidth / baseUnit) * fontSize;
     }
 
-    return totalWidth;
+    return width;
+  }
+
+  private getCharCode(char: string): string {
+    return char.charCodeAt(0).toString();
+  }
+
+  private getAVMParserByFont(
+    fullFontName?: string,
+    fontName?: string,
+    fontStyle?: FontStyle
+  ) {
+    if (!fullFontName && (!fontName || !fontStyle)) {
+      throw new Error(
+        "No font family is given. Please set a full font name or a font with font style"
+      );
+    }
+    let result;
+    if (fullFontName) {
+      result = this.afmParsers.find((f) => f.fullFontName === fullFontName);
+    } else {
+      result = this.afmParsers.find(
+        (f) => f.fontName === fontName && f.fontStyle === fontStyle
+      );
+    }
+
+    if (!result)
+      throw new Error(
+        `Cannot find a parser for the given font family ${
+          fullFontName || fontName || "No given font"
+        }`
+      );
+
+    return result;
+  }
+
+  // Methode zur Berechnung der Zeichenbreite anhand der Schriftgröße
+  getCharWidth(
+    char: string,
+    fontSize: number,
+    fullFontName?: string,
+    fontName?: string,
+    fontStyle?: FontStyle
+  ): number {
+    const currentParser = this.getAVMParserByFont(
+      fullFontName,
+      fontName,
+      fontStyle
+    );
+
+    const advanceWidth = currentParser.parser.getAdvanceWidth(char);
+
+    // Normally we got still zero. TODO: Return a alternative width like the "space"
+    if (!advanceWidth) {
+      throw new Error(
+        `Kein Metrik-Eintrag für Zeichen: ${char} ${this.getCharCode(char)}`
+      );
+    }
+
+    // Width of the character multiplied by the font size (scaled proportionally)
+    return (advanceWidth / 1000) * fontSize;
+  }
+
+  // Method to get the kerning, if available, between two signs
+  private getKerning(
+    char: string,
+    nextChar: string,
+    fullFontName?: string,
+    fontName?: string,
+    fontStyle?: FontStyle
+  ): number {
+    const currentParser = this.getAVMParserByFont(
+      fullFontName,
+      fontName,
+      fontStyle
+    );
+
+    return currentParser.parser.getKerning(char, nextChar) / 1000;
   }
 
   // Returns all fonts
