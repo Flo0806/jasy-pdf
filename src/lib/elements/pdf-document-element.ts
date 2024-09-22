@@ -1,4 +1,3 @@
-import { PDFObjectManager } from "../utils/pdf-object-manager";
 import { PageElement } from "./page-element";
 import { LayoutConstraints, PDFElement, WithChildren } from "./pdf-element";
 
@@ -10,8 +9,6 @@ export class PDFDocumentElement extends PDFElement {
 
   constructor({ children }: PDFDocumentParams) {
     super();
-    const preInitializedManager = new PDFObjectManager();
-    Reflect.defineMetadata("PDFObjectManager", preInitializedManager, this);
     this.children = children;
   }
 

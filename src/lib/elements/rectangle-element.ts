@@ -54,8 +54,8 @@ export class RectangleElement extends SizedPDFElement {
     const result = {
       x: this.x,
       y: this.y,
-      width: this.width,
-      height: this.height,
+      width: (this.width || 0) + this.borderWidth,
+      height: (this.height || 0) + this.borderWidth, // The rectangle goes bigger with its border width
     };
 
     this.normalizeCoordinates();

@@ -42,7 +42,6 @@ export class PaddingElement extends SizedPDFElement {
     };
     if (parentConstraints) {
       if (parentConstraints.width) this.width = parentConstraints.width || 0;
-      //if (parentConstraints.height) this.height = parentConstraints.height || 0;
       this.x = parentConstraints.x;
       this.y = parentConstraints.y;
 
@@ -57,13 +56,11 @@ export class PaddingElement extends SizedPDFElement {
 
     const childResult = this.child.calculateLayout(result);
     const [marginTop, marginRight, marginBottom, marginLeft] = this.margin;
-    this.height = (childResult.height || 0) + marginTop + marginLeft;
-    console.log(this.height);
+    this.height = (childResult.height || 0) + marginTop + marginBottom;
+
     result.height = this.height;
 
     Validator.validateSizedElement(this);
-
-    console.log(result, childResult);
 
     this.normalizeCoordinates();
     return result;
@@ -81,8 +78,8 @@ export class PaddingElement extends SizedPDFElement {
     // Calculate the new position and size of the child element
     const adjustedX = x + marginLeft; // Move x +marginLeft to right
     const adjustedY = y + marginTop; // Move y +marginTop down - normaly we start in the left-bottom corner. But we transform it to regular left-top corner
-    const adjustedWidth = width - marginLeft - marginRight; // Die Breite wird verringert um left + right margin
-    const adjustedHeight = height - marginTop - marginBottom; // Die Höhe wird verringert um top + bottom margin
+    const adjustedWidth = width - marginLeft - marginRight; // The width of the child elements goes smaller
+    const adjustedHeight = height - marginTop - marginBottom; // "If" we have a height (normally the padding element will get the height of its children) make the height of children smaller
 
     return {
       x: adjustedX,

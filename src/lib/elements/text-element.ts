@@ -2,9 +2,8 @@ import { TextRenderer } from "../renderer";
 import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
 import {
+  HorizontalAlignment,
   LayoutConstraints,
-  PDFElement,
-  SizedElement,
   SizedPDFElement,
 } from "./pdf-element";
 export interface TextSegment {
@@ -12,6 +11,7 @@ export interface TextSegment {
   fontStyle?: FontStyle;
   fontColor?: [number, number, number];
   fontFamily?: string;
+  fontSize?: number;
 }
 
 interface TextElementParams {
@@ -22,15 +22,16 @@ interface TextElementParams {
   fontStyle?: FontStyle;
   content: string | TextSegment[];
   color?: [number, number, number]; // optional param
+  textAlignment?: HorizontalAlignment;
 }
 
-// @InjectObjectManager()
 export class TextElement extends SizedPDFElement {
   private fontSize: number;
   private fontFamily: string;
   private fontStyle: FontStyle;
   private color: [number, number, number];
   private content: string | TextSegment[];
+  private textAlignment: HorizontalAlignment;
 
   @InjectObjectManager()
   private _objectManager!: PDFObjectManager;
@@ -41,6 +42,7 @@ export class TextElement extends SizedPDFElement {
     fontFamily = "Helvetica",
     fontStyle = FontStyle.Normal,
     color = [0, 0, 0],
+    textAlignment = HorizontalAlignment.left,
   }: TextElementParams) {
     super({ x: 0, y: 0 });
 
@@ -49,6 +51,7 @@ export class TextElement extends SizedPDFElement {
     this.fontStyle = fontStyle;
     this.color = color;
     this.content = content;
+    this.textAlignment = textAlignment;
   }
 
   calculateLayout(parentConstraints?: LayoutConstraints): LayoutConstraints {
@@ -62,12 +65,12 @@ export class TextElement extends SizedPDFElement {
         this.content,
         this.fontSize,
         this.fontFamily,
+        this.fontStyle,
         this._objectManager,
         this.width || 0
       );
+
       this.height = textHeight;
-      // if (parentConstraints.height)
-      //   this.height = parentConstraints.height - this.y;
     }
 
     this.normalizeCoordinates();
@@ -77,19 +80,15 @@ export class TextElement extends SizedPDFElement {
 
   normalizeCoordinates() {
     const pageHeight = this._objectManager.pageFormat[1];
-    this.y = pageHeight - this.y - (this.fontSize || 0);
-  }
+    let maxLineHeight = this.fontSize;
+    if (Array.isArray(this.content)) {
+      this.content.forEach((segment) => {
+        if ((segment.fontSize || this.fontSize) > maxLineHeight)
+          maxLineHeight = segment.fontSize || this.fontSize;
+      });
+    }
 
-  override getSize(): SizedElement {
-    const textHeight = TextRenderer.calculateTextHeight(
-      this.content,
-      this.fontSize,
-      this.fontFamily,
-      this._objectManager,
-      this.width || 0
-    );
-
-    return { x: this.x, y: this.y, width: this.width, height: textHeight };
+    this.y = pageHeight - this.y - maxLineHeight * (683 / 1000);
   }
 
   override getProps() {
@@ -103,6 +102,7 @@ export class TextElement extends SizedPDFElement {
       fontStyle: this.fontStyle,
       color: this.color,
       content: this.content,
+      textAlignment: this.textAlignment,
     };
   }
 }
