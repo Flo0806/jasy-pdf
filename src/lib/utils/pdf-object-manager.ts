@@ -1,44 +1,74 @@
+import { pageFormats } from "../constants/page-sizes";
+import * as fs from "fs";
+import * as path from "path";
+import { AFMParser } from "./afm-parser";
+
 interface FontIndexes {
   fontIndex: number;
   resourceIndex: number;
+  fontStyle: FontStyle;
+  fullName: string;
 }
 
-/**
- * Helper class for the fonts.
- * Fonts are set with the style `F1 2 0 R`. F1 is the index of the fonts only (Courier = 1, Times-Roman = 2)
- * `2 0 R` (so 2) is the index of all resouces we set. So we need a special map and some function to get what we need.
- */
+export enum FontStyle {
+  Normal = "normal",
+  Bold = "bold",
+  Italic = "italic",
+  BoldItalic = "boldItalic",
+}
+
 class FontManager {
   private fonts: Map<string, FontIndexes> = new Map();
 
-  // Add font to the array
-  addFont(fontName: string, fontIndex: number, resourceIndex: number): void {
-    if (!this.fonts.has(fontName)) {
-      this.fonts.set(fontName, { fontIndex, resourceIndex });
+  addFont(
+    fontName: string,
+    fontIndex: number,
+    resourceIndex: number,
+    fontStyle: FontStyle = FontStyle.Normal,
+    fullName: string = fontName
+  ): void {
+    const fontKey = this._createFontKey(fontName, fontStyle);
+    if (!this.fonts.has(fontKey)) {
+      this.fonts.set(fontKey, {
+        fontIndex,
+        resourceIndex,
+        fontStyle,
+        fullName,
+      });
     }
   }
 
-  // Check if font already exists
-  hasFont(fontName: string): boolean {
-    return this.fonts.has(fontName);
+  hasFont(fontName: string, fontStyle: FontStyle = FontStyle.Normal): boolean {
+    const fontKey = this._createFontKey(fontName, fontStyle);
+    return this.fonts.has(fontKey);
   }
 
-  // Returns all informations about the font, so indexes and name
-  getFont(fontName: string): FontIndexes | undefined {
-    return this.fonts.get(fontName);
+  getFont(
+    fontName: string,
+    fontStyle: FontStyle = FontStyle.Normal
+  ): FontIndexes | undefined {
+    const fontKey = this._createFontKey(fontName, fontStyle);
+    return this.fonts.get(fontKey);
   }
 
-  // Returns all fonts
+  addCustomFont(
+    fontName: string,
+    fontStyle: FontStyle,
+    fullName: string = fontName
+  ): void {
+    const fontIndex = this.getLastFontIndex() + 1;
+    const resourceIndex = this.getLastResourceIndex() + 1;
+    this.addFont(fontName, fontIndex, resourceIndex, fontStyle, fullName);
+  }
+
   getAllFonts(): Map<string, FontIndexes> {
     return this.fonts;
   }
 
-  // Returns the size of the fonts array
   size(): number {
     return this.fonts.size;
   }
 
-  // Returns the highest font index of all fonts
   getLastFontIndex(): number {
     let maxFontIndex = 0;
     this.fonts.forEach((value) => {
@@ -49,7 +79,6 @@ class FontManager {
     return maxFontIndex;
   }
 
-  // Returns the highest resource index of all fonts
   getLastResourceIndex(): number {
     let maxResourceIndex = 0;
     this.fonts.forEach((value) => {
@@ -59,80 +88,248 @@ class FontManager {
     });
     return maxResourceIndex;
   }
+
+  private _createFontKey(fontName: string, fontStyle: FontStyle): string {
+    return `${fontName}-${fontStyle}`;
+  }
 }
 
 export class PDFObjectManager {
   private objects: string[] = [];
   private objectPositions: number[] = [];
   private parentObjectNumber: number = 0;
-  private fonts: FontManager = new FontManager(); // Save the fonts we're using in the pdf document
+  private fonts: FontManager = new FontManager(); // Stores the fonts
+  public pageFormat = pageFormats.a4;
 
-  // Add an object and return its number
+  private afmParsers: {
+    fontName: string;
+    fontStyle: FontStyle;
+    fullFontName?: string;
+    parser: AFMParser;
+  }[] = [];
+
+  constructor();
+  constructor(pageFormat?: number[]) {
+    if (pageFormat) this.pageFormat = pageFormat;
+  }
+
+  // Adds an object and returns its number
   addObject(content: string): number {
+    // The text is encoded in Windows-1252 if necessary
     const objectNumber = this.objects.length + 1;
-    const position = this.getCurrentByteLength(); // We need all the positions caluclated... here we calc it
+    const position = this.getCurrentByteLength(); // Calculate the current byte length
     this.objectPositions.push(position);
     this.objects.push(content);
     return objectNumber;
   }
 
-  // Replace a object on index `objectNumber` with new content
+  // Replaces an object at the index `objectNumber`
   replaceObject(objectNumber: number, content: string): void {
     this.objects[objectNumber - 1] = content;
   }
 
-  // Calculates the size of the document in bytes (for XRef)
+  // Calculates the total length of the document in bytes (for XRef)
   private getCurrentByteLength(): number {
-    let length = "%PDF-1.4\n".length; // Start with the header - we need the complete size!
-    this.objects.forEach((obj, index) => {
-      length += `${index + 1} 0 obj\n${obj}\nendobj\n`.length;
-    });
+    let length = "%PDF-1.3\n".length; // Start with the header
+
+    for (let i = 0; i < this.objects.length; i++) {
+      const obj = this.objects[i];
+      const objectContent = `${i + 1} 0 obj\n${obj}\nendobj\n`;
+
+      // Convert the object content into a buffer with the correct encoding
+      const encodedContent = Buffer.from(objectContent, "binary");
+
+      // Add the actual byte length to the total length
+      length += encodedContent.length;
+    }
     return length;
   }
 
-  // Set the parent object
+  // Sets the parent object number
   setParentObjectNumber(number: number) {
     this.parentObjectNumber = number;
   }
 
-  // Get the parent object
+  // Returns the parent object number
   getParentObjectNumber(): number {
     return this.parentObjectNumber;
   }
 
-  // Register a font family
-  registerFont(fontName: string): FontIndexes {
-    if (this.fonts.hasFont(fontName)) {
-      return this.fonts.getFont(fontName)!; // Already added? Return it!
+  // Registers a font
+  registerFont(
+    fontName: string,
+    fontStyle: FontStyle = FontStyle.Normal,
+    fullName: string = fontName
+  ): FontIndexes {
+    if (this.fonts.hasFont(fontName, fontStyle)) {
+      return this.fonts.getFont(fontName, fontStyle)!; // Already exists? Return it!
     }
 
-    const resourceNumber = this.objects.length + 1; // The new resource object number
-    const fontNumber = this.fonts.getLastFontIndex() + 1; // The new font index number
-    this.fonts.addFont(fontName, fontNumber, resourceNumber); // Lets save it
+    const afmFilePath = path.resolve(
+      __dirname,
+      "../",
+      `assets/${fullName}.afm`
+    );
+    if (fs.existsSync(afmFilePath)) {
+      const data = fs.readFileSync(afmFilePath, "utf-8");
+      this.afmParsers.push({
+        fontName,
+        fontStyle,
+        fullFontName: fullName,
+        parser: new AFMParser(data),
+      });
+    }
 
-    const fontObject = `<< /Type /Font /Subtype /Type1 /BaseFont /${fontName} >>`;
+    const resourceNumber = this.objects.length + 1; // New resource number
+    const fontNumber = this.fonts.getLastFontIndex() + 1; // New font index number
+    this.fonts.addFont(fontName, fontNumber, resourceNumber, fontStyle); // Store it
+
+    const fontObject = `<</BaseFont/${fullName}/Type/Font\n/Encoding/WinAnsiEncoding\n/Subtype/Type1>>`;
     this.addObject(fontObject);
 
-    return { fontIndex: fontNumber, resourceIndex: resourceNumber };
+    return {
+      fontIndex: fontNumber,
+      resourceIndex: resourceNumber,
+      fontStyle: fontStyle,
+      fullName: fullName,
+    };
   }
 
+  // Returns the current width of a text, included kernings
+  public getStringWidth(
+    text: string,
+    fontFamily: string,
+    fontSize: number,
+    fontStyle: FontStyle
+  ): number {
+    let width = 0;
+
+    // We must calculate each sign
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      const nextChar = text[i + 1] || null;
+
+      // Get signs width
+      const charWidth = this.getCharWidth(
+        char,
+        fontSize,
+        undefined,
+        fontFamily,
+        fontStyle
+      );
+      width += charWidth;
+
+      // If a next sign available calculate the kerning
+      if (nextChar) {
+        const kerning = this.getKerning(
+          char,
+          nextChar,
+          undefined,
+          fontFamily,
+          fontStyle
+        );
+        width += kerning * fontSize; // Kerning must be scaled with the font size
+      }
+    }
+
+    return width;
+  }
+
+  private getCharCode(char: string): string {
+    return char.charCodeAt(0).toString();
+  }
+
+  private getAVMParserByFont(
+    fullFontName?: string,
+    fontName?: string,
+    fontStyle?: FontStyle
+  ) {
+    if (!fullFontName && (!fontName || !fontStyle)) {
+      throw new Error(
+        "No font family is given. Please set a full font name or a font with font style"
+      );
+    }
+    let result;
+    if (fullFontName) {
+      result = this.afmParsers.find((f) => f.fullFontName === fullFontName);
+    } else {
+      result = this.afmParsers.find(
+        (f) => f.fontName === fontName && f.fontStyle === fontStyle
+      );
+    }
+
+    if (!result)
+      throw new Error(
+        `Cannot find a parser for the given font family ${
+          fullFontName || fontName || "No given font"
+        }`
+      );
+
+    return result;
+  }
+
+  // Methode zur Berechnung der Zeichenbreite anhand der Schriftgröße
+  getCharWidth(
+    char: string,
+    fontSize: number,
+    fullFontName?: string,
+    fontName?: string,
+    fontStyle?: FontStyle
+  ): number {
+    const currentParser = this.getAVMParserByFont(
+      fullFontName,
+      fontName,
+      fontStyle
+    );
+
+    const advanceWidth = currentParser.parser.getAdvanceWidth(char);
+
+    // Normally we got still zero. TODO: Return a alternative width like the "space"
+    if (!advanceWidth) {
+      throw new Error(
+        `Kein Metrik-Eintrag für Zeichen: ${char} ${this.getCharCode(char)}`
+      );
+    }
+
+    // Width of the character multiplied by the font size (scaled proportionally)
+    return (advanceWidth / 1000) * fontSize;
+  }
+
+  // Method to get the kerning, if available, between two signs
+  private getKerning(
+    char: string,
+    nextChar: string,
+    fullFontName?: string,
+    fontName?: string,
+    fontStyle?: FontStyle
+  ): number {
+    const currentParser = this.getAVMParserByFont(
+      fullFontName,
+      fontName,
+      fontStyle
+    );
+
+    return currentParser.parser.getKerning(char, nextChar) / 1000;
+  }
+
+  // Returns all fonts
   getAllFontsRaw() {
     return this.fonts.getAllFonts();
   }
 
-  // Returns all rendered objects as string
+  // Returns all rendered objects as a string
   getRenderedObjects(): string {
     let result = "";
     this.objectPositions = [];
     this.objects.forEach((content, index) => {
-      const position = result.length + "%PDF-1.4\n".length; // Calculation the positions after the header
-      this.objectPositions.push(position); // And hold it
+      const position = result.length + "%PDF-1.3\n".length; // Calculate positions after the header
+      this.objectPositions.push(position);
       result += `${index + 1} 0 obj\n${content}\nendobj\n`;
     });
     return result;
   }
 
-  // Returns the Cross-Reference table
+  // Creates the cross-reference table
   getXRefTable(): string {
     let xref = "xref\n";
     xref += `0 ${this.objects.length + 1}\n`;
@@ -145,7 +342,7 @@ export class PDFObjectManager {
     return xref;
   }
 
-  // Calculating the position of the XRef table and returns the trailer
+  // Calculates the position of the XRef table and returns the trailer
   getTrailerAndXRef(startxref: number): string {
     const objectCount = this.getObjectCount();
     return `trailer\n<< /Size ${objectCount + 1} /Root ${
@@ -153,7 +350,7 @@ export class PDFObjectManager {
     } 0 R >>\nstartxref\n${startxref}\n%%EOF`;
   }
 
-  // Returns the object count
+  // Returns the number of objects
   getObjectCount(): number {
     return this.objects.length;
   }

@@ -4,7 +4,8 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "manual-test": "tsc -p tsconfig.test.json && node dist/tests/manual/index.js",
+    "copy-assets": "ncp ./src/lib/assets ./dist/src/lib/assets",
+    "manual-test": "tsc -p tsconfig.test.json && npm run copy-assets &&  node dist/tests/manual/index.js",
     "test": "jest",
     "build": "tsc"
   },
@@ -13,9 +14,11 @@
   "license": "MIT",
   "devDependencies": {
     "jest": "^29.7.0",
+    "ncp": "^2.0.0",
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "jasy-pdf": "file:"
+    "jasy-pdf": "file:",
+    "reflect-metadata": "^0.2.2"
   }
 }
