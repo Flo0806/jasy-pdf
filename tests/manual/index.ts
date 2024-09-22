@@ -36,7 +36,7 @@ class MyPDF extends PDFDocument {
                   child: new TextElement({
                     fontSize: 11,
                     color: [0, 0, 255],
-                    //  fontFamily: "Helvetica",
+                    fontFamily: "Helvetica",
                     textAlignment: HorizontalAlignment.center,
                     //fontStyle: FontStyle.Bold,
                     content: [
@@ -48,6 +48,7 @@ class MyPDF extends PDFDocument {
                       },
                       {
                         fontStyle: FontStyle.Bold,
+                        fontFamily: "Times-Roman",
                         content:
                           "Test 2 im Segment mit zu langem Te zum testen ob alles d umbricht und wie es danach aussieht! ",
                       },

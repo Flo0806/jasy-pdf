@@ -335,7 +335,6 @@ export class TextRenderer {
 
       let combinedSegment = "";
       let firstLine = true;
-
       textSegments.forEach((segment) => {
         const _fontFamily = segment.fontFamily || fontFamily;
         const _fontSize = segment.fontSize || fontSize;
@@ -350,7 +349,10 @@ export class TextRenderer {
           _fontStyle
         );
 
-        currentLineSegments.segments.push(segment);
+        currentLineSegments.segments.push({
+          ...segment,
+          fontFamily: _fontFamily,
+        });
         combinedSegment = "";
 
         if (maxFontSize < _fontSize) maxFontSize = _fontSize;
@@ -404,6 +406,7 @@ export class TextRenderer {
             if (currentLineSegments.segments.length === 0) {
               currentLineSegments.segments.push({
                 ...segment,
+                fontFamily: _fontFamily,
                 content: combinedSegment,
               });
             }
