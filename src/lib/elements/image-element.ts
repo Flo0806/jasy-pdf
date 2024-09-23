@@ -1,17 +1,19 @@
-// import { ImageRenderer } from "../renderer";
+import { getImageDimensions } from "../utils/image-helper";
 import { PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
 import { LayoutConstraints, SizedPDFElement } from "./pdf-element";
 
 export abstract class CustomImage {
-  abstract getBase64Data(): string | null | Promise<string> | Promise<null>;
   abstract loadAndConvertImage(): void | Promise<void>;
   abstract getImageType(): string | Promise<string>;
+  abstract getFileData(): string | Promise<string>;
+  abstract getImageDimensions(): Promise<{ width: number; height: number }>;
 }
 
-export abstract class CustomLocalImage extends CustomImage {
+export class CustomLocalImage extends CustomImage {
   private imagePath: string;
-  private imageData: string | null = null;
+  private fileBuffer!: Buffer;
+  private fileRawData!: string;
 
   constructor(imagePath: string) {
     super();
@@ -21,8 +23,7 @@ export abstract class CustomLocalImage extends CustomImage {
   async loadAndConvertImage(): Promise<void> {
     try {
       // Loading image and convert it to base64
-      const image = await this.loadImage(this.imagePath);
-      this.imageData = this.convertToBase64(image);
+      await this.loadImage(this.imagePath);
     } catch (error) {
       console.error("Error loading image:", error);
     }
@@ -53,15 +54,23 @@ export abstract class CustomLocalImage extends CustomImage {
 
   private async loadImage(imagePath: string): Promise<Buffer> {
     const fs = await import("fs/promises"); // Dynamic import
-    return fs.readFile(imagePath);
+    const result = await fs.readFile(imagePath);
+    this.fileBuffer = result;
+    this.fileRawData = result.toString("binary");
+    return result;
   }
 
-  private convertToBase64(imageBuffer: Buffer): string {
-    return imageBuffer.toString("base64");
+  getFileData(): string {
+    return this.fileRawData;
   }
 
-  getBase64Data(): string | null {
-    return this.imageData;
+  async getImageDimensions(): Promise<{ width: number; height: number }> {
+    if (!this.fileBuffer) {
+      throw new Error("You must first call the `loadAndConvertImage` method");
+    }
+
+    const dimensions = await getImageDimensions(this.fileBuffer);
+    return dimensions;
   }
 }
 
@@ -94,7 +103,7 @@ export class ImageElement extends SizedPDFElement {
       this.x = parentConstraints.x || this.x;
       this.y = parentConstraints.y || this.y;
       this.width = parentConstraints.width || this.width;
-      this.height = parentConstraints.height || this.height;
+      this.height = (parentConstraints.height || this.height || 0) + 100;
     }
 
     this.normalizeCoordinates();
