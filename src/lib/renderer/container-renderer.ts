@@ -3,21 +3,21 @@ import { ContainerElement } from "../elements/container-element";
 import { RendererRegistry } from "../utils/renderer-registry";
 
 export class ContainerRenderer {
-  static render(
+  static async render(
     containerElement: ContainerElement,
     objectManager: PDFObjectManager
-  ): string {
+  ): Promise<string> {
     const { children } = containerElement.getProps();
     let renderedContent = "";
 
     if (children)
-      children.forEach((child) => {
+      for (let child of children) {
         // Pick the content of all elements of the page
         const renderer = RendererRegistry.getRenderer(child);
         if (renderer) {
-          renderedContent += renderer(child, objectManager);
+          renderedContent += await renderer(child, objectManager);
         }
-      });
+      }
 
     return renderedContent;
   }

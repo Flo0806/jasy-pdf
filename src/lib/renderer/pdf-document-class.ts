@@ -100,9 +100,11 @@ export abstract class PDFDocument {
 
   abstract build(): PDFDocumentElement;
 
-  public static render<T extends PDFDocument>(this: new () => T): string {
+  public static async render<T extends PDFDocument>(
+    this: new () => T
+  ): Promise<string> {
     const instance = new this();
     instance.child = instance.build();
-    return PDFRenderer.render(instance.child);
+    return await PDFRenderer.render(instance.child);
   }
 }
