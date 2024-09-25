@@ -3,8 +3,15 @@ import { PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
 import { LayoutConstraints, SizedPDFElement } from "./pdf-element";
 
+export enum BoxFit {
+  none = "NONE",
+  contain = "CONTAIN",
+  cover = "COVER",
+  fill = "FILL",
+}
+
 export abstract class CustomImage {
-  abstract loadAndConvertImage(): void | Promise<void>;
+  abstract init(): void | Promise<void>;
   abstract getImageType(): string | Promise<string>;
   abstract getFileData(): string | Promise<string>;
   abstract getImageDimensions(): Promise<{ width: number; height: number }>;
@@ -20,7 +27,7 @@ export class CustomLocalImage extends CustomImage {
     this.imagePath = imagePath;
   }
 
-  async loadAndConvertImage(): Promise<void> {
+  async init(): Promise<void> {
     try {
       // Loading image and convert it to base64
       await this.loadImage(this.imagePath);
@@ -75,13 +82,15 @@ export class CustomLocalImage extends CustomImage {
 }
 
 interface ImageElementParams {
-  image: CustomImage; // Base64 or binary image data
+  image: CustomImage; // binary image data
   width?: number;
   height?: number;
+  fit?: BoxFit;
 }
 
 export class ImageElement extends SizedPDFElement {
   private image: CustomImage;
+  private fit: BoxFit;
 
   @InjectObjectManager()
   private _objectManager!: PDFObjectManager;
@@ -90,12 +99,14 @@ export class ImageElement extends SizedPDFElement {
     image,
     width = Number.NaN,
     height = Number.NaN,
+    fit = BoxFit.none,
   }: ImageElementParams) {
     super({ x: 0, y: 0, width: width });
 
     this.image = image;
     this.width = width;
     this.height = height;
+    this.fit = fit;
   }
 
   calculateLayout(parentConstraints?: LayoutConstraints): LayoutConstraints {
@@ -103,7 +114,7 @@ export class ImageElement extends SizedPDFElement {
       this.x = parentConstraints.x || this.x;
       this.y = parentConstraints.y || this.y;
       this.width = parentConstraints.width || this.width;
-      this.height = (parentConstraints.height || this.height || 0) + 100;
+      this.height = parentConstraints.height || this.height || 0;
     }
 
     this.normalizeCoordinates();
@@ -122,6 +133,7 @@ export class ImageElement extends SizedPDFElement {
       width: this.width,
       height: this.height,
       image: this.image,
+      fit: this.fit,
     };
   }
 }
