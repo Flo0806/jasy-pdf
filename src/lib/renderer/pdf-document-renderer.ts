@@ -3,10 +3,10 @@ import { PDFObjectManager } from "../utils/pdf-object-manager";
 import { PageRenderer } from "./page-renderer";
 
 export class PDFDocumentRenderer {
-  static render(
+  static async render(
     document: PDFDocumentElement,
     objectManager: PDFObjectManager
-  ): number {
+  ): Promise<number> {
     const pageNumbers: number[] = [];
 
     // Add the pages object first... we need its object number (resources)
@@ -19,10 +19,10 @@ export class PDFDocumentRenderer {
     objectManager.setParentObjectNumber(pagesObjectNumber);
 
     // Render all pages now that the Parent Object Number is set
-    document.getProps().children.forEach((page) => {
-      const pageNumber = PageRenderer.render(page, objectManager);
+    for (let page of document.getProps().children) {
+      const pageNumber = await PageRenderer.render(page, objectManager);
       pageNumbers.push(pageNumber);
-    });
+    }
 
     // We must update the pages object with the current page numbers...
     const updatedPagesObject = `<< /Type /Pages /Kids [${pageNumbers

@@ -17,6 +17,18 @@ export enum FontStyle {
   BoldItalic = "boldItalic",
 }
 
+class ImageManager {
+  private images: Map<string, number> = new Map();
+
+  addImage(resourceNumber: number) {
+    this.images.set("IM" + resourceNumber.toString(), resourceNumber);
+  }
+
+  getAllImages() {
+    return this.images;
+  }
+}
+
 class FontManager {
   private fonts: Map<string, FontIndexes> = new Map();
 
@@ -99,6 +111,7 @@ export class PDFObjectManager {
   private objectPositions: number[] = [];
   private parentObjectNumber: number = 0;
   private fonts: FontManager = new FontManager(); // Stores the fonts
+  private images: ImageManager = new ImageManager(); // Stores the images (object numbers and names)
   public pageFormat = pageFormats.a4;
 
   private afmParsers: {
@@ -130,7 +143,7 @@ export class PDFObjectManager {
 
   // Calculates the total length of the document in bytes (for XRef)
   private getCurrentByteLength(): number {
-    let length = "%PDF-1.3\n".length; // Start with the header
+    let length = "%PDF-1.4\n".length; // Start with the header
 
     for (let i = 0; i < this.objects.length; i++) {
       const obj = this.objects[i];
@@ -153,6 +166,116 @@ export class PDFObjectManager {
   // Returns the parent object number
   getParentObjectNumber(): number {
     return this.parentObjectNumber;
+  }
+
+  atob(data: string) {
+    var b64 =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    //  discuss at: http://phpjs.org/functions/base64_decode/
+    // original by: Tyler Akins (http://rumkin.com)
+    // improved by: Thunder.m
+    // improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+    // improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+    //    input by: Aman Gupta
+    //    input by: Brett Zamir (http://brett-zamir.me)
+    // bugfixed by: Onno Marsman
+    // bugfixed by: Pellentesque Malesuada
+    // bugfixed by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+    //   example 1: base64_decode('S2V2aW4gdmFuIFpvbm5ldmVsZA==');
+    //   returns 1: 'Kevin van Zonneveld'
+
+    var o1,
+      o2,
+      o3,
+      h1,
+      h2,
+      h3,
+      h4,
+      bits,
+      i = 0,
+      ac = 0,
+      dec = "",
+      tmp_arr = [];
+
+    if (!data) {
+      return data;
+    }
+
+    data += "";
+
+    do {
+      // unpack four hexets into three octets using index points in b64
+      h1 = b64.indexOf(data.charAt(i++));
+      h2 = b64.indexOf(data.charAt(i++));
+      h3 = b64.indexOf(data.charAt(i++));
+      h4 = b64.indexOf(data.charAt(i++));
+
+      bits = (h1 << 18) | (h2 << 12) | (h3 << 6) | h4;
+
+      o1 = (bits >> 16) & 0xff;
+      o2 = (bits >> 8) & 0xff;
+      o3 = bits & 0xff;
+
+      if (h3 == 64) {
+        tmp_arr[ac++] = String.fromCharCode(o1);
+      } else if (h4 == 64) {
+        tmp_arr[ac++] = String.fromCharCode(o1, o2);
+      } else {
+        tmp_arr[ac++] = String.fromCharCode(o1, o2, o3);
+      }
+    } while (i < data.length);
+
+    dec = tmp_arr.join("");
+
+    return dec;
+  }
+
+  // Registers an image
+  registerImage(
+    width: number,
+    height: number,
+    imageType: string,
+    imageData: string
+  ) {
+    const imageObject = `<< /Type /XObject
+    /Subtype /Image
+    /Width ${width}
+    /Height ${height}
+    /ColorSpace /DeviceRGB
+    /BitsPerComponent 8
+    /Filter /${imageType}
+    /Length ${imageData.length} >>
+stream
+${imageData} 
+endstream`;
+
+    //     // Bilddaten im Binärformat einlesen
+    //     const imageDataTest = fs.readFileSync(
+    //       "C:\\Users\\fh\\Downloads\\face.jpg"
+    //       // "binary"
+    //     );
+
+    //     // Länge der Binärdaten
+    //     const imageLength = imageDataTest.length;
+
+    //     // PDF-Objekt erstellen
+    //     const pdfObject = `<< /Type /XObject
+    //    /Subtype /Image
+    //    /Width 123
+    //    /Height 111
+    //    /ColorSpace /DeviceRGB
+    //    /BitsPerComponent 8
+    //    /Filter /DCTDecode
+    //    /Length ${imageLength} >>
+    // stream
+    // ${imageDataTest.toString("latin1")}
+    // endstream`;
+
+    // Add the image and its object number to the image manager - return the object number
+    const imageObjectNumber = this.addObject(imageObject);
+
+    this.images.addImage(imageObjectNumber);
+    return imageObjectNumber;
   }
 
   // Registers a font
@@ -317,12 +440,17 @@ export class PDFObjectManager {
     return this.fonts.getAllFonts();
   }
 
+  // Returns all images
+  getAllImagesRaw() {
+    return this.images.getAllImages();
+  }
+
   // Returns all rendered objects as a string
   getRenderedObjects(): string {
     let result = "";
     this.objectPositions = [];
     this.objects.forEach((content, index) => {
-      const position = result.length + "%PDF-1.3\n".length; // Calculate positions after the header
+      const position = result.length + "%PDF-1.4\n".length; // Calculate positions after the header
       this.objectPositions.push(position);
       result += `${index + 1} 0 obj\n${content}\nendobj\n`;
     });

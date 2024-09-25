@@ -4,10 +4,10 @@ import { RectangleElement } from "../elements/rectangle-element";
 import { RendererRegistry } from "../utils/renderer-registry";
 
 export class RectangleRenderer {
-  static render(
+  static async render(
     rectangleElement: RectangleElement,
     objectManager: PDFObjectManager
-  ): string {
+  ): Promise<string> {
     const {
       x,
       y,
@@ -34,13 +34,13 @@ export class RectangleRenderer {
       backgroundColor ? "B" : "S"
     }\n`;
     if (children)
-      children.forEach((child) => {
+      for (let child of children) {
         // Pick the content of all elements of the page
         const renderer = RendererRegistry.getRenderer(child);
         if (renderer) {
-          renderedContent += renderer(child, objectManager);
+          renderedContent += await renderer(child, objectManager);
         }
-      });
+      }
 
     return renderedContent;
   }

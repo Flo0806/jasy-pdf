@@ -9,4 +9,7 @@ export class RendererRegistry {
   static getRenderer(element: any): Function | undefined {
     return RendererRegistry.renderers.get(element.constructor);
   }
+  static isRendererAsync(renderer: Function): boolean {
+    return renderer.constructor.name === "AsyncFunction";
+  }
 }

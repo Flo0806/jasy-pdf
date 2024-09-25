@@ -138,10 +138,10 @@ export class TextRenderer {
     return totalLinesHeight;
   }
 
-  static render(
+  static async render(
     textElement: TextElement,
     objectManager: PDFObjectManager
-  ): string {
+  ): Promise<string> {
     const {
       x,
       y,
