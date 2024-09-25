@@ -87,3 +87,108 @@ export async function getImageDimensions(
 
   throw new Error("Unsupported image format");
 }
+
+// Helper for caluclating sizes (contain, cover..)
+export interface FitResult {
+  width: number;
+  height: number;
+  offsetX: number;
+  offsetY: number;
+}
+
+export function applyContainFit(
+  imageWidth: number,
+  imageHeight: number,
+  containerWidth: number,
+  containerHeight: number
+): FitResult {
+  const imageAspectRatio = imageWidth / imageHeight;
+  const containerAspectRatio = containerWidth / containerHeight;
+  let width, height, offsetX, offsetY;
+
+  if (imageAspectRatio > containerAspectRatio) {
+    // The images width is bigger than the containers width
+    const scaleFactor = containerWidth / imageWidth;
+    width = containerWidth;
+    height = imageHeight * scaleFactor;
+    offsetX = 0;
+    offsetY = (containerHeight - height) / 2; // Center vertically
+  } else {
+    // THe images height is bigge rthan the containers height
+    const scaleFactor = containerHeight / imageHeight;
+    width = imageWidth * scaleFactor;
+    height = containerHeight;
+    offsetX = (containerWidth - width) / 2; // Center horizontally
+    offsetY = 0;
+  }
+
+  return {
+    width,
+    height,
+    offsetX,
+    offsetY,
+  };
+}
+
+export function applyCoverFit(
+  imageWidth: number,
+  imageHeight: number,
+  containerWidth: number,
+  containerHeight: number
+): FitResult {
+  const imageAspectRatio = imageWidth / imageHeight;
+  const containerAspectRatio = containerWidth / containerHeight;
+  let width, height, offsetX, offsetY;
+
+  if (imageAspectRatio > containerAspectRatio) {
+    // The images width is bigger than containers width
+    const scaleFactor = containerHeight / imageHeight;
+    width = imageWidth * scaleFactor;
+    height = containerHeight;
+    offsetX = (containerWidth - width) / 2; // Center horizontally
+    offsetY = 0;
+  } else {
+    // The images height is bigger than containers height
+    const scaleFactor = containerWidth / imageWidth;
+    width = containerWidth;
+    height = imageHeight * scaleFactor;
+    offsetX = 0;
+    offsetY = (containerHeight - height) / 2; // Center vertically
+  }
+
+  return {
+    width,
+    height,
+    offsetX,
+    offsetY,
+  };
+}
+
+export function applyFillFit(
+  containerWidth: number,
+  containerHeight: number
+): FitResult {
+  return {
+    width: containerWidth,
+    height: containerHeight,
+    offsetX: 0,
+    offsetY: 0,
+  };
+}
+
+export function applyFitNone(
+  imageWidth: number,
+  imageHeight: number,
+  containerWidth: number,
+  containerHeight: number
+) {
+  const offsetX = (containerWidth - imageWidth) / 2; // Center horizontally
+  const offsetY = (containerHeight - imageHeight) / 2; // Center vertically
+
+  return {
+    width: imageWidth, // Hold orignal image size
+    height: imageHeight,
+    offsetX: offsetX > 0 ? offsetX : 0, // Dont move outside the container...
+    offsetY: offsetY > 0 ? offsetY : 0,
+  };
+}
