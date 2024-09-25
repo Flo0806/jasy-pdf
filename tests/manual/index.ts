@@ -4,14 +4,27 @@ import { TextElement } from "../../src/lib/elements/text-element";
 import { PDFDocument } from "../../src/lib/renderer/pdf-document-class";
 import fs from "fs";
 import { ContainerElement } from "../../src/lib/elements/container-element";
-import { ExpandedElement, PaddingElement } from "../../src/lib/elements";
+import {
+  BoxFit,
+  CustomLocalImage,
+  ExpandedElement,
+  ImageElement,
+  PaddingElement,
+} from "../../src/lib/elements";
 import { getArrayBuffer } from "../../src/lib/utils/utf8-to-windows1252-encoder";
 import { HorizontalAlignment } from "../../src/lib/elements/pdf-element";
 import { FontStyle } from "../../src/lib/utils/pdf-object-manager";
+import { TextRenderer } from "../../src/lib/renderer";
 
 class MyPDF extends PDFDocument {
+  async TestFunc(): Promise<void> {}
   constructor() {
     super();
+    this.test();
+  }
+
+  async test() {
+    const test = TextRenderer.render.constructor;
   }
 
   build(): PDFDocumentElement {
@@ -61,7 +74,16 @@ class MyPDF extends PDFDocument {
                   }),
                 }),
                 new ExpandedElement({
-                  flex: 2,
+                  flex: 1,
+                  child: new ImageElement({
+                    fit: BoxFit.fill,
+                    image: new CustomLocalImage(
+                      "C:\\Users\\fh\\Downloads\\face.jpg"
+                    ),
+                  }),
+                }),
+                new ExpandedElement({
+                  flex: 1,
                   child: new TextElement({
                     fontSize: 11,
                     color: [0, 0, 255],
@@ -98,18 +120,22 @@ class MyPDF extends PDFDocument {
 // });
 // etst.
 
-const startDate = new Date();
-const renderedPDF = MyPDF.render(); // PDFRenderer.render(pdf);
-const endDate = new Date();
-console.log("Done in", endDate.getTime() - startDate.getTime());
-console.log(renderedPDF);
+async function runCode() {
+  const startDate = new Date();
+  const renderedPDF = await MyPDF.render(); // PDFRenderer.render(pdf);
+  const endDate = new Date();
+  console.log("Done in", endDate.getTime() - startDate.getTime());
+  console.log(renderedPDF);
 
-const buffer = Buffer.from(getArrayBuffer(renderedPDF));
-// fs.writeFileSync("c:/Users/fh/Downloads/test2.pdf", renderedPDF);
-fs.writeFile("C:/Users/fh/Downloads/test.pdf", buffer, (err) => {
-  if (err) {
-    console.error("Error writing file:", err);
-  } else {
-    console.log("PDF saved successfully!");
-  }
-});
+  const buffer = Buffer.from(getArrayBuffer(renderedPDF));
+  // fs.writeFileSync("c:/Users/fh/Downloads/test2.pdf", renderedPDF);
+  fs.writeFile("C:/Users/fh/Downloads/test.pdf", buffer, (err) => {
+    if (err) {
+      console.error("Error writing file:", err);
+    } else {
+      console.log("PDF saved successfully!");
+    }
+  });
+}
+
+runCode();
