@@ -15,7 +15,6 @@ export class ExpandedRenderer {
 
     // Pick the content of all elements of the page
     const renderer = RendererRegistry.getRenderer(child);
-    console.log(RendererRegistry.isRendererAsync(renderer!));
     if (renderer) {
       renderedContent += await renderer(child, objectManager);
     }
