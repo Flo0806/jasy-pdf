@@ -7,12 +7,15 @@
     "copy-assets": "ncp ./src/lib/assets ./dist/src/lib/assets",
     "manual-test": "tsc -p tsconfig.test.json && npm run copy-assets &&  node dist/tests/manual/index.js",
     "test": "vitest",
+    "test:coverage": "vitest --coverage",
     "build": "tsc"
   },
   "keywords": [],
   "author": "Florian Heuberger",
   "license": "MIT",
   "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.1",
+    "c8": "^10.1.2",
     "jest": "^29.7.0",
     "ncp": "^2.0.0",
     "typescript": "^5.5.4",
