@@ -38,14 +38,15 @@ export class FlexLayoutHelper {
     }
 
     const remainingHeight = Math.max(
-      parentConstraints.height || 0 - usedHeight,
+      (parentConstraints.height || 0) - usedHeight,
       0
     );
 
     // Second run: Calc the flexible elements height
     for (let expanded of expandedElements) {
-      const flexHeight =
-        (expanded.element.getFlex() / totalFlex) * remainingHeight;
+      const flexHeight = parseFloat(
+        ((expanded.element.getFlex() / totalFlex) * remainingHeight).toFixed(6)
+      );
       positions.push({ element: expanded.element, y: lastYPosition });
       lastYPosition += flexHeight;
     }

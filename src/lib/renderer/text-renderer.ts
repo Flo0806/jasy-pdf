@@ -452,7 +452,6 @@ export class TextRenderer {
 
       // Calculate new x position based on alignment
       let xPosition = initialX;
-
       if (textAlignment === HorizontalAlignment.center) {
         xPosition = initialX + (maxWidth - lineWidth) / 2;
       } else if (textAlignment === HorizontalAlignment.right) {
@@ -485,9 +484,10 @@ export class TextRenderer {
             );
             const textCommand = `/F${
               fontData.fontIndex
-            } ${fontSize} Tf ${xPosition} ${
-              yPosition - fontSize * index
-            } Td (${line}) Tj`;
+            } ${fontSize} Tf ${xPosition.toFixed(3)} ${(
+              yPosition -
+              fontSize * index
+            ).toFixed(3)} Td (${line}) Tj`;
             // return index === 0 ? textCommand : `T* (${line}) Tj`;
             return index === 0
               ? textCommand
