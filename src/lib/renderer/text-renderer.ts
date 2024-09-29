@@ -165,12 +165,12 @@ export class TextRenderer {
       objectManager,
       width || Number.NaN,
       textAlignment,
-      width || 0,
+      color,
       x,
       y
     );
 
-    return `BT\n ${colorString} rg ${renderedContent.maxFontSize} TL ${renderedContent.content} ET\n`;
+    return `BT\n${colorString} rg ${renderedContent.maxFontSize} TL ${renderedContent.content} ET\n`;
   }
 
   // Private function to check if content is a string or a `TextSegment[]`
@@ -182,7 +182,7 @@ export class TextRenderer {
     objectManager: PDFObjectManager,
     maxWidth: number,
     textAlignment: HorizontalAlignment, // New alignment parameter
-    pageWidth: number, // Page width to calculate alignment
+    color: Color,
     initialX: number, // Original x position for left alignment
     yPosition: number
   ): { content: string; maxFontSize: number } {
@@ -249,7 +249,7 @@ export class TextRenderer {
       // Setze die Schriftfarbe (falls vorhanden, sonst Standardfarbe)
       let colorCommand = "";
       if (fontColor) {
-        colorCommand = fontColor.toPDFColorString() + "\n"; // Change text color
+        colorCommand = fontColor.toPDFColorString() + " rg "; // Change text color
       }
 
       // Generiere den finalen PDF-Befehl für das Segment
@@ -300,7 +300,7 @@ export class TextRenderer {
           maxFontSize,
           segment.fontStyle || fontStyle,
           addPositions && index === 0,
-          segment.fontColor
+          segment.fontColor || color
         );
 
         adjustedX += objectManager.getStringWidth(
