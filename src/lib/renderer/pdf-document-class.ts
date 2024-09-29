@@ -1,7 +1,46 @@
+import { PageSize } from "../constants/page-sizes";
 import { PDFDocumentElement } from "../elements";
 import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
 import { PDFRenderer } from "./pdf-renderer";
+
+export enum Orientation {
+  portrait = "PORTRAIT",
+  landscape = "LANDSCAPE",
+}
+
+export enum ColorMode {
+  color = "COLOR",
+  grayscale = "GRAYSCALE",
+}
+
+export interface Margin {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
+export interface DefaultFont {
+  fontFamily: string;
+  fontSize: number;
+  FontStyle: FontStyle;
+}
+
+export interface MetaData {
+  title?: string;
+  author?: string;
+  keywords: string[];
+}
+
+export interface PDFConfig {
+  pageSize: PageSize;
+  orientation: Orientation;
+  pageMargin: Margin;
+  colorMode: ColorMode;
+  defaultFont: DefaultFont;
+  metaData: MetaData;
+}
 
 export abstract class PDFDocument {
   @InjectObjectManager()
@@ -99,6 +138,8 @@ export abstract class PDFDocument {
   }
 
   abstract build(): PDFDocumentElement;
+
+  protected beforeRenderer() {}
 
   public static async render<T extends PDFDocument>(
     this: new () => T
