@@ -45,12 +45,11 @@ export class ContainerElement extends SizedPDFElement {
     };
 
     if (this.children) {
-      // Verwende die FlexLayoutHelper-Klasse, um das Layout zu berechnen
+      // Helper to caluclate the height
       const { positions, usedHeight, totalFlex } =
         FlexLayoutHelper.calculateFlexLayout(this.children, result, this.y);
-
-      // Setze alle Positionen basierend auf den berechneten Werten
-      const remainingHeight = Math.max(result.height || 0 - usedHeight, 0);
+      // Calc the remaining height and set the current positions
+      const remainingHeight = Math.max((result.height || 0) - usedHeight, 0);
 
       for (let position of positions) {
         const { element, y } = position;
@@ -62,7 +61,7 @@ export class ContainerElement extends SizedPDFElement {
             height: flexHeight,
           });
         } else {
-          // Feste Elemente wurden bereits berechnet, setze einfach die Y-Position
+          // Fixed elements are already calculated. Set only the y position
           element.calculateLayout({
             ...result,
             y: y,

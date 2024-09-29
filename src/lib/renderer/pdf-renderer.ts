@@ -5,6 +5,7 @@ import { RendererRegistry } from "../utils/renderer-registry";
 import {
   ExpandedElement,
   ImageElement,
+  LineElement,
   PaddingElement,
   TextElement,
 } from "../elements";
@@ -17,6 +18,7 @@ import { ExpandedRenderer } from "./expanded-renderer";
 import { PaddingRenderer } from "./padding-renderer";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
 import { ImageRenderer } from "./image-renderer";
+import { LineRenderer } from "./line-renderer";
 
 export class PDFRenderer {
   @InjectObjectManager()
@@ -30,6 +32,7 @@ export class PDFRenderer {
     RendererRegistry.register(ExpandedElement, ExpandedRenderer.render);
     RendererRegistry.register(PaddingElement, PaddingRenderer.render);
     RendererRegistry.register(ImageElement, ImageRenderer.render);
+    RendererRegistry.register(LineElement, LineRenderer.render);
 
     let pdfContent = "";
 

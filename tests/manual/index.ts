@@ -9,6 +9,7 @@ import {
   CustomLocalImage,
   ExpandedElement,
   ImageElement,
+  LineElement,
   PaddingElement,
 } from "../../src/lib/elements";
 import { getArrayBuffer } from "../../src/lib/utils/utf8-to-windows1252-encoder";
@@ -36,7 +37,7 @@ class MyPDF extends PDFDocument {
               x: 50,
               y: 0,
               width: 400,
-              height: 300,
+              height: 500,
               color: [255, 0, 0],
               backgroundColor: [100, 255, 50],
               children: [
@@ -44,6 +45,13 @@ class MyPDF extends PDFDocument {
                 //   color: [0, 0, 255],
                 //   backgroundColor: [255, 0, 50],
                 // }),
+                new LineElement({
+                  x: 10,
+                  y: 10,
+                  xEnd: 10,
+                  yEnd: 20,
+                  strokeWidth: 1,
+                }),
                 new PaddingElement({
                   margin: [10, 10, 10, 10],
                   child: new TextElement({

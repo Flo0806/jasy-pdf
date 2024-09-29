@@ -20,6 +20,13 @@ export class RectangleElement extends SizedPDFElement {
   private backgroundColor?: [number, number, number];
   private borderWidth: number;
 
+  private sizeMemory!: {
+    x: number;
+    y: number;
+    width?: number;
+    height?: number;
+  };
+
   @InjectObjectManager()
   private _objectManager!: PDFObjectManager;
 
@@ -37,6 +44,7 @@ export class RectangleElement extends SizedPDFElement {
     this.color = color;
     this.backgroundColor = backgroundColor;
     this.borderWidth = borderWidth ? borderWidth : 1;
+    this.sizeMemory = { x: 0, y: 0, width, height };
   }
 
   calculateLayout(parentConstraints?: LayoutConstraints): LayoutConstraints {
@@ -47,8 +55,8 @@ export class RectangleElement extends SizedPDFElement {
       if (parentConstraints.height) {
         this.height = parentConstraints.height;
       }
-      this.x += parentConstraints.x;
-      this.y += parentConstraints.y;
+      this.x = this.sizeMemory.x + parentConstraints.x;
+      this.y = this.sizeMemory.y + parentConstraints.y;
     }
 
     const result = {
