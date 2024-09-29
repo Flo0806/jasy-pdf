@@ -1,3 +1,4 @@
+import { Color } from "../common/color";
 import { TextRenderer } from "../renderer";
 import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
@@ -9,7 +10,7 @@ import {
 export interface TextSegment {
   content: string;
   fontStyle?: FontStyle;
-  fontColor?: [number, number, number];
+  fontColor?: Color;
   fontFamily?: string;
   fontSize?: number;
 }
@@ -21,7 +22,7 @@ interface TextElementParams {
   fontFamily?: string;
   fontStyle?: FontStyle;
   content: string | TextSegment[];
-  color?: [number, number, number]; // optional param
+  color?: Color; // optional param
   textAlignment?: HorizontalAlignment;
 }
 
@@ -29,7 +30,7 @@ export class TextElement extends SizedPDFElement {
   private fontSize: number;
   private fontFamily: string;
   private fontStyle: FontStyle;
-  private color: [number, number, number];
+  private color: Color;
   private content: string | TextSegment[];
   private textAlignment: HorizontalAlignment;
 
@@ -41,7 +42,7 @@ export class TextElement extends SizedPDFElement {
     content,
     fontFamily = "Helvetica",
     fontStyle = FontStyle.Normal,
-    color = [0, 0, 0],
+    color = new Color(0, 0, 0),
     textAlignment = HorizontalAlignment.left,
   }: TextElementParams) {
     super({ x: 0, y: 0 });

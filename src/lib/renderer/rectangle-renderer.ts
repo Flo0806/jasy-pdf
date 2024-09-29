@@ -21,14 +21,13 @@ export class RectangleRenderer {
     let renderedContent = "";
 
     // Beginne das Zeichnen eines Rechtecks, das die Größe der Box darstellt
-    const _color = color
-      ? color.map((c) => (c / 255).toFixed(3)).join(" ")
-      : "0 0 0"; // Standard color is black
+    const _color = color.toPDFColorString();
 
     // Background color is optional, so we set the `rg` flag directly here
     const _backgroundColor = backgroundColor
-      ? backgroundColor.map((c) => (c / 255).toFixed(3)).join(" ") + " rg\n"
+      ? backgroundColor.toPDFColorString() + "\n"
       : "";
+
     // The `B` draws a filled rect, the `S` draws a stroked rect only
     renderedContent += `${borderWidth} w\n${_color} RG\n${_backgroundColor}${x} ${y} ${width} ${height} re ${
       backgroundColor ? "B" : "S"

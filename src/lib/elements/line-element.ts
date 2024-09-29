@@ -1,3 +1,4 @@
+import { Color } from "../common/color";
 import { PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
 import {
@@ -7,7 +8,7 @@ import {
 } from "./pdf-element";
 
 interface LineElementParams extends SizedElement {
-  color?: [number, number, number];
+  color?: Color;
   strokeWidth?: number;
   x: number;
   y: number;
@@ -16,7 +17,7 @@ interface LineElementParams extends SizedElement {
 }
 
 export class LineElement extends SizedPDFElement {
-  private color?: [number, number, number];
+  private color?: Color;
   private strokeWidth?: number;
   private xEnd: number;
   private yEnd: number;
@@ -32,7 +33,7 @@ export class LineElement extends SizedPDFElement {
   private _objectManager!: PDFObjectManager;
 
   constructor({
-    color = [0, 0, 0],
+    color = new Color(0, 0, 0),
     strokeWidth,
     x,
     y,

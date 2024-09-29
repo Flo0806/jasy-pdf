@@ -1,3 +1,4 @@
+import { Color } from "../common/color";
 import { PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
 import {
@@ -9,15 +10,15 @@ import {
 } from "./pdf-element";
 
 interface RectangleElementParams extends SizedElement, WithChildren {
-  color?: [number, number, number];
-  backgroundColor?: [number, number, number];
+  color?: Color;
+  backgroundColor?: Color;
   borderWidth?: number;
 }
 
 export class RectangleElement extends SizedPDFElement {
   private children: PDFElement[] = [];
-  private color;
-  private backgroundColor?: [number, number, number];
+  private color: Color;
+  private backgroundColor?: Color;
   private borderWidth: number;
 
   private sizeMemory!: {
@@ -32,7 +33,7 @@ export class RectangleElement extends SizedPDFElement {
 
   constructor({
     children = [],
-    color = [0, 0, 0],
+    color = new Color(0, 0, 0),
     backgroundColor,
     borderWidth,
     width,

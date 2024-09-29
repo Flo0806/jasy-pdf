@@ -10,11 +10,7 @@ import {
   WithChildren,
 } from "./pdf-element";
 
-interface ContainerElementParams extends SizedElement, WithChildren {
-  color?: [number, number, number];
-  backgroundColor?: [number, number, number];
-  borderWidth?: number;
-}
+interface ContainerElementParams extends SizedElement, WithChildren {}
 
 // @InjectObjectManager()
 export class ContainerElement extends SizedPDFElement {
