@@ -25,7 +25,7 @@ export class RectangleRenderer {
 
     // Background color is optional, so we set the `rg` flag directly here
     const _backgroundColor = backgroundColor
-      ? backgroundColor.toPDFColorString() + "rg\n"
+      ? backgroundColor.toPDFColorString() + " rg\n"
       : "";
 
     // The `B` draws a filled rect, the `S` draws a stroked rect only
