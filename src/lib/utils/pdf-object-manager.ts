@@ -1,4 +1,4 @@
-import { pageFormats } from "../constants/page-sizes";
+import { pageFormats, PageSize } from "../constants/page-sizes";
 import * as fs from "fs";
 import * as path from "path";
 import { AFMParser } from "./afm-parser";
@@ -112,7 +112,7 @@ export class PDFObjectManager {
   private parentObjectNumber: number = 0;
   private fonts: FontManager = new FontManager(); // Stores the fonts
   private images: ImageManager = new ImageManager(); // Stores the images (object numbers and names)
-  public pageFormat = pageFormats.a4;
+  public pageFormat = pageFormats[PageSize.A4];
 
   private afmParsers: {
     fontName: string;
@@ -122,8 +122,8 @@ export class PDFObjectManager {
   }[] = [];
 
   constructor();
-  constructor(pageFormat?: number[]) {
-    if (pageFormat) this.pageFormat = pageFormat;
+  constructor(pageSize?: PageSize) {
+    if (pageSize) this.pageFormat = pageFormats[pageSize];
   }
 
   // Adds an object and returns its number
