@@ -5,3 +5,4 @@ export * from "./rectangle-element";
 export * from "./image-element";
 export * from "./layout/expanded-element";
 export * from "./layout/padding-element";
+export * from "./line-element";
