@@ -1,4 +1,7 @@
-import { getImageDimensions } from "../utils/image-helper";
+import {
+  convertImageToGrayscaleBuffer,
+  getImageDimensions,
+} from "../utils/image-helper";
 import { PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
 import { LayoutConstraints, SizedPDFElement } from "./pdf-element";
@@ -62,8 +65,10 @@ export class CustomLocalImage extends CustomImage {
   private async loadImage(imagePath: string): Promise<Buffer> {
     const fs = await import("fs/promises"); // Dynamic import
     const result = await fs.readFile(imagePath);
+    //const result = await convertImageToGrayscaleBuffer(imagePath);
     this.fileBuffer = result;
     this.fileRawData = result.toString("binary");
+
     return result;
   }
 
@@ -76,6 +81,8 @@ export class CustomLocalImage extends CustomImage {
       throw new Error("You must first call the `loadAndConvertImage` method");
     }
 
+    // Since now (30.09.2024) we using "Jimp" - So we don't need our custom method to get the image dimension.
+    // But at the moment I let it still here...
     const dimensions = await getImageDimensions(this.fileBuffer);
     return dimensions;
   }
