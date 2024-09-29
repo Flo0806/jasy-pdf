@@ -38,12 +38,14 @@ export class Color {
    * The resulting grayscale value is applied equally to the red, green, and blue channels,
    * producing a shade of gray that represents the original color's perceived brightness.
    *
-   * @returns {Color} A new `Color` instance where the red, green, and blue components are equal,
-   *                  forming a grayscale color.
+   * @returns {string} A PDF compatible color string
    */
-  toGrayscale(): Color {
-    const gray = Math.round(0.3 * this.r + 0.59 * this.g + 0.11 * this.b);
-    return new Color(gray, gray, gray);
+  toGrayscale(): string {
+    const [r, g, b] = JSON.parse(JSON.stringify(this.toArray())); // JSON because its better to deep clone it here
+    const gray = Math.round(0.3 * r + 0.59 * g + 0.11 * b);
+    return `${(gray / 255).toFixed(3)} ${(gray / 255).toFixed(3)} ${(
+      gray / 255
+    ).toFixed(3)}`;
   }
 
   // Returns the color as array `[number, number, number]`

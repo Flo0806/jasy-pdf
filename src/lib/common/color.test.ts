@@ -28,11 +28,9 @@ describe("Color Class", () => {
   it("should convert to grayscale correctly", () => {
     const color = new Color(100, 150, 200);
     const grayscaleColor = color.toGrayscale();
-    const [grayR, grayG, grayB] = grayscaleColor.toArray();
 
     // Since grayscale should make all components the same
-    expect(grayR).toBe(grayG);
-    expect(grayG).toBe(grayB);
+    expect(grayscaleColor).toBe("0.553 0.553 0.553");
   });
 
   it("should return a PDF-compatible color string", () => {
