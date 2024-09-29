@@ -1,6 +1,4 @@
 import { PDFObjectManager } from "../utils/pdf-object-manager";
-
-import { RendererRegistry } from "../utils/renderer-registry";
 import { LineElement } from "../elements";
 
 export class LineRenderer {
@@ -11,7 +9,7 @@ export class LineRenderer {
     const { x, y, xEnd, yEnd, color, strokeWidth } = LineElement.getProps();
     let renderedContent = "";
 
-    // Beginne das Zeichnen eines Rechtecks, das die Größe der Box darstellt
+    // Convert to coloer...
     const _color = color
       ? color.map((c) => (c / 255).toFixed(3)).join(" ")
       : "0 0 0"; // Standard color is black
@@ -21,9 +19,10 @@ ${strokeWidth} w
 ${_color} RG
 [] 0 d
 ${x} ${y} m
-${xEnd} ${yEnd} l
+${xEnd} ${y + yEnd!} l
 S
-Q`;
+Q
+`;
 
     return renderedContent;
   }
