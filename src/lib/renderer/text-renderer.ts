@@ -1,3 +1,4 @@
+import { Color } from "../common/color";
 import { HorizontalAlignment } from "../elements/pdf-element";
 import { TextElement, TextSegment } from "../elements/text-element";
 import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
@@ -153,7 +154,7 @@ export class TextRenderer {
       fontStyle,
       textAlignment,
     } = textElement.getProps();
-    const colorString = color.map((c) => (c / 255).toFixed(3)).join(" ");
+    const colorString = color.toPDFColorString();
 
     // Private function to render the content
     const renderedContent = TextRenderer._renderContent(
@@ -164,12 +165,12 @@ export class TextRenderer {
       objectManager,
       width || Number.NaN,
       textAlignment,
-      width || 0,
+      color,
       x,
       y
     );
 
-    return `BT\n ${colorString} rg ${renderedContent.maxFontSize} TL ${renderedContent.content} ET\n`;
+    return `BT\n${colorString} rg ${renderedContent.maxFontSize} TL ${renderedContent.content} ET\n`;
   }
 
   // Private function to check if content is a string or a `TextSegment[]`
@@ -181,7 +182,7 @@ export class TextRenderer {
     objectManager: PDFObjectManager,
     maxWidth: number,
     textAlignment: HorizontalAlignment, // New alignment parameter
-    pageWidth: number, // Page width to calculate alignment
+    color: Color,
     initialX: number, // Original x position for left alignment
     yPosition: number
   ): { content: string; maxFontSize: number } {
@@ -240,7 +241,7 @@ export class TextRenderer {
       maxFontSize: number,
       fontStyle: FontStyle,
       addPosition: boolean,
-      fontColor?: [number, number, number]
+      fontColor?: Color
     ): string => {
       // Get the currunt font from PDF Object Manager
       const fontData = objectManager.registerFont(fontFamily, fontStyle);
@@ -248,10 +249,7 @@ export class TextRenderer {
       // Setze die Schriftfarbe (falls vorhanden, sonst Standardfarbe)
       let colorCommand = "";
       if (fontColor) {
-        const [r, g, b] = fontColor;
-        colorCommand = `${(r / 255).toFixed(3)} ${(g / 255).toFixed(3)} ${(
-          b / 255
-        ).toFixed(3)} rg\n`; // Change text color
+        colorCommand = fontColor.toPDFColorString() + " rg "; // Change text color
       }
 
       // Generiere den finalen PDF-Befehl für das Segment
@@ -302,7 +300,7 @@ export class TextRenderer {
           maxFontSize,
           segment.fontStyle || fontStyle,
           addPositions && index === 0,
-          segment.fontColor
+          segment.fontColor || color
         );
 
         adjustedX += objectManager.getStringWidth(

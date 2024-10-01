@@ -1,3 +1,5 @@
+import { pageFormats } from "../constants/page-sizes";
+import { Orientation } from "../renderer";
 import { FlexLayoutHelper } from "../utils/flex-layout";
 import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
@@ -10,15 +12,11 @@ import {
   WithChildren,
 } from "./pdf-element";
 
-interface ContainerElementParams extends SizedElement, WithChildren {
-  color?: [number, number, number];
-  backgroundColor?: [number, number, number];
-  borderWidth?: number;
-}
+interface ContainerElementParams extends SizedElement, WithChildren {}
 
 // @InjectObjectManager()
 export class ContainerElement extends SizedPDFElement {
-  private children?: PDFElement[];
+  private children: PDFElement[];
 
   @InjectObjectManager()
   private _objectManager!: PDFObjectManager;
@@ -33,8 +31,8 @@ export class ContainerElement extends SizedPDFElement {
     if (parentConstraints) {
       if (parentConstraints.width) this.width = parentConstraints.width;
       if (parentConstraints.height) this.height = parentConstraints.height;
-      this.x += parentConstraints.x;
-      this.y += parentConstraints.y;
+      this.x = parentConstraints.x;
+      this.y = parentConstraints.y;
     }
 
     const result = {
@@ -75,7 +73,11 @@ export class ContainerElement extends SizedPDFElement {
   }
 
   normalizeCoordinates() {
-    const pageHeight = this._objectManager.pageFormat[1];
+    const pageConfig = this._objectManager.getCurrentPageConfig();
+    const pageHeight =
+      pageFormats[pageConfig.pageSize!][
+        pageConfig.orientation === Orientation.landscape ? 0 : 1
+      ];
     this.y = pageHeight - this.y - (this.height || 0);
   }
 

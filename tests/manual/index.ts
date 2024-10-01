@@ -1,7 +1,10 @@
 import { PDFDocumentElement } from "../../src/lib/elements/pdf-document-element";
 import { PageElement } from "../../src/lib/elements/page-element";
 import { TextElement } from "../../src/lib/elements/text-element";
-import { PDFDocument } from "../../src/lib/renderer/pdf-document-class";
+import {
+  Orientation,
+  PDFDocument,
+} from "../../src/lib/renderer/pdf-document-class";
 import fs from "fs";
 import { ContainerElement } from "../../src/lib/elements/container-element";
 import {
@@ -16,6 +19,8 @@ import { getArrayBuffer } from "../../src/lib/utils/utf8-to-windows1252-encoder"
 import { HorizontalAlignment } from "../../src/lib/elements/pdf-element";
 import { FontStyle } from "../../src/lib/utils/pdf-object-manager";
 import { TextRenderer } from "../../src/lib/renderer";
+import { Color } from "../../src/lib/common/color";
+import { PageSize } from "../../src/lib/constants/page-sizes";
 
 class MyPDF extends PDFDocument {
   async TestFunc(): Promise<void> {}
@@ -33,13 +38,25 @@ class MyPDF extends PDFDocument {
       children: [
         new PageElement({
           children: [
+            new ExpandedElement({
+              flex: 1,
+              child: new TextElement({
+                fontSize: 11,
+                color: new Color(0, 0, 256),
+                //fontFamily: "Times-Roman",
+                content: "This is a Text ö",
+              }),
+            }),
+          ],
+        }),
+        new PageElement({
+          config: { pageSize: PageSize.A5, orientation: Orientation.landscape },
+          children: [
             new ContainerElement({
-              x: 50,
+              x: 0,
               y: 0,
-              width: 400,
-              height: 500,
-              color: [255, 0, 0],
-              backgroundColor: [100, 255, 50],
+              width: 595.28 - 72 - 72,
+              height: 841,
               children: [
                 // new RectangleElement({
                 //   color: [0, 0, 255],
@@ -56,7 +73,7 @@ class MyPDF extends PDFDocument {
                   margin: [10, 10, 10, 10],
                   child: new TextElement({
                     fontSize: 11,
-                    color: [0, 0, 255],
+                    color: new Color(0, 0, 255),
                     fontFamily: "Helvetica",
                     textAlignment: HorizontalAlignment.center,
                     //fontStyle: FontStyle.Bold,
@@ -65,13 +82,7 @@ class MyPDF extends PDFDocument {
                         fontStyle: FontStyle.Italic,
                         content: "Test 1 in Munchen ",
                         fontSize: 16,
-                        fontColor: [255, 0, 0],
-                      },
-                      {
-                        fontStyle: FontStyle.Bold,
-                        fontFamily: "Times-Roman",
-                        content:
-                          "Test 2 im Segment mit zu langem Te zum testen ob alles d umbricht und wie es danach aussieht! ",
+                        fontColor: new Color(255, 0, 0),
                       },
                       // {
                       //   content: "Test 13im Segment ",
@@ -94,7 +105,7 @@ class MyPDF extends PDFDocument {
                   flex: 1,
                   child: new TextElement({
                     fontSize: 11,
-                    color: [0, 0, 255],
+                    color: new Color(0, 0, 256),
                     //fontFamily: "Times-Roman",
                     content: "This is a Text ö",
                   }),

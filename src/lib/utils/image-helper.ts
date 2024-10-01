@@ -1,4 +1,4 @@
-import * as fs from "fs/promises";
+import { Jimp, JimpMime } from "jimp";
 
 // Declare the new method in the DataView interface
 declare global {
@@ -28,7 +28,11 @@ interface ImageDimensions {
 export async function getImageDimensions(
   buffer: Buffer
 ): Promise<ImageDimensions> {
-  const dataView = new DataView(buffer.buffer);
+  const dataView = new DataView(
+    buffer.buffer
+    // buffer.byteOffset,
+    // buffer.byteLength
+  );
 
   // Check for JPEG (0xFFD8 is the start of JPEG file)
   if (dataView.getUint16(0) === 0xffd8) {
@@ -86,6 +90,41 @@ export async function getImageDimensions(
   }
 
   throw new Error("Unsupported image format");
+}
+
+/**
+ * Converts the given image to grayscale and returns its binary data.
+ * @param imagePath Path to the input image file.
+ * @returns Promise that resolves with the binary data of the grayscale image.
+ */
+export async function convertImageToGrayscaleBuffer(
+  imagePath: string
+): Promise<Buffer> {
+  // We get the image from the buffer
+  const image = await Jimp.read(imagePath);
+
+  // Get MIME type. If emtpy throw error
+  const mime = image.mime;
+  if (!mime) throw new Error("Cannot read MIME type");
+
+  // We need to check the MIME type
+  let mimeType: any;
+  switch (mime) {
+    case JimpMime.png:
+    case JimpMime.jpeg:
+    case JimpMime.bmp:
+      mimeType = mime;
+      break;
+    default:
+      throw new Error("Unsupported MIME type");
+  }
+
+  image.greyscale();
+
+  // Convert the image back to buffer with current MIME type
+  const grayscaleBuffer = await image.getBuffer(mimeType);
+
+  return grayscaleBuffer;
 }
 
 // Helper for caluclating sizes (contain, cover..)

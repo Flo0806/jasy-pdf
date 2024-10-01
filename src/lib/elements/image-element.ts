@@ -1,4 +1,9 @@
-import { getImageDimensions } from "../utils/image-helper";
+import { pageFormats } from "../constants/page-sizes";
+import { Orientation } from "../renderer";
+import {
+  convertImageToGrayscaleBuffer,
+  getImageDimensions,
+} from "../utils/image-helper";
 import { PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
 import { LayoutConstraints, SizedPDFElement } from "./pdf-element";
@@ -62,8 +67,10 @@ export class CustomLocalImage extends CustomImage {
   private async loadImage(imagePath: string): Promise<Buffer> {
     const fs = await import("fs/promises"); // Dynamic import
     const result = await fs.readFile(imagePath);
+    //const result = await convertImageToGrayscaleBuffer(imagePath);
     this.fileBuffer = result;
     this.fileRawData = result.toString("binary");
+
     return result;
   }
 
@@ -76,6 +83,8 @@ export class CustomLocalImage extends CustomImage {
       throw new Error("You must first call the `loadAndConvertImage` method");
     }
 
+    // Since now (30.09.2024) we using "Jimp" - So we don't need our custom method to get the image dimension.
+    // But at the moment I let it still here...
     const dimensions = await getImageDimensions(this.fileBuffer);
     return dimensions;
   }
@@ -122,7 +131,11 @@ export class ImageElement extends SizedPDFElement {
   }
 
   normalizeCoordinates() {
-    const pageHeight = this._objectManager.pageFormat[1];
+    const pageConfig = this._objectManager.getCurrentPageConfig();
+    const pageHeight =
+      pageFormats[pageConfig.pageSize!][
+        pageConfig.orientation === Orientation.landscape ? 0 : 1
+      ];
     this.y = pageHeight - this.y - (this.height || 0); // Adjust Y to fit PDF coordinate system
   }
 

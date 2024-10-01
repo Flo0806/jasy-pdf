@@ -1,3 +1,6 @@
+import { Color } from "../common/color";
+import { pageFormats } from "../constants/page-sizes";
+import { Orientation } from "../renderer";
 import { PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
 import {
@@ -9,15 +12,15 @@ import {
 } from "./pdf-element";
 
 interface RectangleElementParams extends SizedElement, WithChildren {
-  color?: [number, number, number];
-  backgroundColor?: [number, number, number];
+  color?: Color;
+  backgroundColor?: Color;
   borderWidth?: number;
 }
 
 export class RectangleElement extends SizedPDFElement {
   private children: PDFElement[] = [];
-  private color;
-  private backgroundColor?: [number, number, number];
+  private color: Color;
+  private backgroundColor?: Color;
   private borderWidth: number;
 
   private sizeMemory!: {
@@ -32,7 +35,7 @@ export class RectangleElement extends SizedPDFElement {
 
   constructor({
     children = [],
-    color = [0, 0, 0],
+    color = new Color(0, 0, 0),
     backgroundColor,
     borderWidth,
     width,
@@ -71,7 +74,11 @@ export class RectangleElement extends SizedPDFElement {
   }
 
   normalizeCoordinates() {
-    const pageHeight = this._objectManager.pageFormat[1];
+    const pageConfig = this._objectManager.getCurrentPageConfig();
+    const pageHeight =
+      pageFormats[pageConfig.pageSize!][
+        pageConfig.orientation === Orientation.landscape ? 0 : 1
+      ];
     this.y = pageHeight - this.y - (this.height || 0);
   }
 

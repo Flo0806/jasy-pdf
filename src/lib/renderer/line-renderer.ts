@@ -10,16 +10,14 @@ export class LineRenderer {
     let renderedContent = "";
 
     // Convert to coloer...
-    const _color = color
-      ? color.map((c) => (c / 255).toFixed(3)).join(" ")
-      : "0 0 0"; // Standard color is black
+    const _color = color?.toPDFColorString();
 
     renderedContent += `q
 ${strokeWidth} w
 ${_color} RG
 [] 0 d
 ${x} ${y} m
-${xEnd} ${y + yEnd!} l
+${xEnd} ${yEnd!} l
 S
 Q
 `;

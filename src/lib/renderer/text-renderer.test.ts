@@ -3,6 +3,7 @@ import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
 import { describe, it, vi, expect } from "vitest";
 import { TextElement } from "../elements";
 import { HorizontalAlignment } from "../elements/pdf-element";
+import { Color } from "../common/color";
 
 describe("TextRenderer - calculateTextHeight", () => {
   it("should calculate the correct text height for a simple string", () => {
@@ -74,7 +75,7 @@ describe("TextRenderer - calculateTextHeight", () => {
         content: "Hello World",
         fontFamily: "Helvetica",
         fontStyle: FontStyle.Normal,
-        color: [0, 0, 0], // Schwarz
+        color: new Color(0, 0, 0), // Black
         textAlignment: "left",
       }),
     } as unknown as TextElement;
@@ -109,7 +110,7 @@ describe("TextRenderer - calculateTextHeight", () => {
         ],
         fontFamily: "Helvetica",
         fontStyle: FontStyle.Normal,
-        color: [0, 0, 0],
+        color: new Color(0, 0, 0),
         textAlignment: "left",
       }),
     } as unknown as TextElement;
@@ -141,7 +142,7 @@ describe("TextRenderer - calculateTextHeight", () => {
         content: "Hello World",
         fontFamily: "Helvetica",
         fontStyle: FontStyle.Normal,
-        color: [0, 0, 0],
+        color: new Color(0, 0, 0),
         textAlignment: HorizontalAlignment.center,
       }),
     } as unknown as TextElement;
@@ -173,7 +174,7 @@ describe("TextRenderer - calculateTextHeight", () => {
         content: "Hello World",
         fontFamily: "Helvetica",
         fontStyle: FontStyle.Normal,
-        color: [0, 0, 0],
+        color: new Color(0, 0, 0),
         textAlignment: HorizontalAlignment.right,
       }),
     } as unknown as TextElement;
@@ -205,7 +206,7 @@ describe("TextRenderer - calculateTextHeight", () => {
         content: "",
         fontFamily: "Helvetica",
         fontStyle: FontStyle.Normal,
-        color: [0, 0, 0],
+        color: new Color(0, 0, 0),
         textAlignment: "left",
       }),
     } as unknown as TextElement;
@@ -222,7 +223,7 @@ describe("TextRenderer - calculateTextHeight", () => {
     );
 
     // Because the test is empty we should not have a text string in the rendered line
-    expect(result).toBe(`BT\n 0.000 0.000 0.000 rg 12 TL  ET\n`);
+    expect(result).toBe(`BT\n0.000 0.000 0.000 rg 12 TL  ET\n`);
   });
 
   it("should render multiple text segments correctly", async () => {
@@ -248,7 +249,7 @@ describe("TextRenderer - calculateTextHeight", () => {
         ],
         fontFamily: "Helvetica",
         fontStyle: FontStyle.Normal,
-        color: [0, 0, 0],
+        color: new Color(0, 0, 0),
         textAlignment: "left",
       }),
     } as unknown as TextElement;
@@ -300,7 +301,7 @@ describe("TextRenderer - calculateTextHeight", () => {
         ],
         fontFamily: "Helvetica",
         fontStyle: FontStyle.Normal,
-        color: [0, 0, 0],
+        color: new Color(0, 0, 0),
         textAlignment: HorizontalAlignment.center,
       }),
     } as unknown as TextElement;
