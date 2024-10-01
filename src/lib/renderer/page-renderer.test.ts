@@ -1,8 +1,9 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { PageRenderer } from "./page-renderer";
 import { PageElement } from "../elements/page-element";
 import { PDFObjectManager } from "../utils/pdf-object-manager";
 import { RendererRegistry } from "../utils/renderer-registry";
+import { PageSize } from "../constants/page-sizes";
 
 // Mock RendererRegistry.getRenderer method
 vi.spyOn(RendererRegistry, "getRenderer").mockImplementation(() => {
@@ -10,10 +11,19 @@ vi.spyOn(RendererRegistry, "getRenderer").mockImplementation(() => {
 });
 
 describe("PageRenderer", () => {
+  beforeEach(() => {
+    vi.doMock("../constants/page-sizes", () => ({
+      pageFormats: {
+        [PageSize.A4]: [595.28, 841.89], // Beispielwert für A4
+      },
+    }));
+  });
+
   it("should render a page and register the content correctly", async () => {
     // Mock PageElement
     const mockPageElement = {
       getProps: vi.fn().mockReturnValue({
+        config: { pageSize: PageSize.A4 },
         children: [
           { getProps: vi.fn() }, // Child element
         ],
@@ -58,6 +68,7 @@ describe("PageRenderer", () => {
     // Mock PageElement
     const mockPageElement = {
       getProps: vi.fn().mockReturnValue({
+        config: { pageSize: PageSize.A4 },
         children: [],
       }),
     } as unknown as PageElement;
@@ -88,6 +99,7 @@ describe("PageRenderer", () => {
     // Mock PageElement
     const mockPageElement = {
       getProps: vi.fn().mockReturnValue({
+        config: { pageSize: PageSize.A4 },
         children: [
           { getProps: vi.fn() },
           { getProps: vi.fn() }, // Multiple children
