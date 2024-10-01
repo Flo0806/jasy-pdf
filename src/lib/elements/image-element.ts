@@ -1,3 +1,5 @@
+import { pageFormats } from "../constants/page-sizes";
+import { Orientation } from "../renderer";
 import {
   convertImageToGrayscaleBuffer,
   getImageDimensions,
@@ -129,7 +131,11 @@ export class ImageElement extends SizedPDFElement {
   }
 
   normalizeCoordinates() {
-    const pageHeight = this._objectManager.pageFormat[1];
+    const pageConfig = this._objectManager.getCurrentPageConfig();
+    const pageHeight =
+      pageFormats[pageConfig.pageSize!][
+        pageConfig.orientation === Orientation.landscape ? 0 : 1
+      ];
     this.y = pageHeight - this.y - (this.height || 0); // Adjust Y to fit PDF coordinate system
   }
 

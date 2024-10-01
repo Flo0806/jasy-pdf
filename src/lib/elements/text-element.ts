@@ -1,5 +1,6 @@
 import { Color } from "../common/color";
-import { TextRenderer } from "../renderer";
+import { pageFormats } from "../constants/page-sizes";
+import { Orientation, TextRenderer } from "../renderer";
 import { FontStyle, PDFObjectManager } from "../utils/pdf-object-manager";
 import { InjectObjectManager } from "../utils/pdf-object-manager-decorator";
 import {
@@ -80,7 +81,11 @@ export class TextElement extends SizedPDFElement {
   }
 
   normalizeCoordinates() {
-    const pageHeight = this._objectManager.pageFormat[1];
+    const pageConfig = this._objectManager.getCurrentPageConfig();
+    const pageHeight =
+      pageFormats[pageConfig.pageSize!][
+        pageConfig.orientation === Orientation.landscape ? 0 : 1
+      ];
     let maxLineHeight = this.fontSize;
     if (Array.isArray(this.content)) {
       this.content.forEach((segment) => {

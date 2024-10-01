@@ -1,3 +1,5 @@
+import { pageFormats } from "../../constants/page-sizes";
+import { Orientation } from "../../renderer";
 import { PDFObjectManager } from "../../utils/pdf-object-manager";
 import { InjectObjectManager } from "../../utils/pdf-object-manager-decorator";
 import { Validator } from "../../validators/element-validator";
@@ -51,7 +53,11 @@ export class ExpandedElement extends FlexiblePDFElement {
   }
 
   normalizeCoordinates() {
-    const pageHeight = this._objectManager.pageFormat[1];
+    const pageConfig = this._objectManager.getCurrentPageConfig();
+    const pageHeight =
+      pageFormats[pageConfig.pageSize!][
+        pageConfig.orientation === Orientation.landscape ? 0 : 1
+      ];
     this.y = pageHeight - this.y - (this.height || 0);
   }
 
