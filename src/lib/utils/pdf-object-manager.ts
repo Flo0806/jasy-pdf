@@ -2,6 +2,8 @@ import { pageFormats, PageSize } from "../constants/page-sizes";
 import * as fs from "fs";
 import * as path from "path";
 import { AFMParser } from "./afm-parser";
+import { ColorMode, Orientation, PDFConfig } from "../renderer";
+import { PDFPageConfig } from "../elements";
 
 interface FontIndexes {
   fontIndex: number;
@@ -112,6 +114,8 @@ export class PDFObjectManager {
   private parentObjectNumber: number = 0;
   private fonts: FontManager = new FontManager(); // Stores the fonts
   private images: ImageManager = new ImageManager(); // Stores the images (object numbers and names)
+  private pdfConfig!: PDFConfig;
+  private pdfPageConfig?: PDFPageConfig;
   public pageFormat = pageFormats[PageSize.A4];
 
   private afmParsers: {
@@ -124,6 +128,7 @@ export class PDFObjectManager {
   constructor();
   constructor(pageSize?: PageSize) {
     if (pageSize) this.pageFormat = pageFormats[pageSize];
+    this.fillConfigWithStandardValues();
   }
 
   // Adds an object and returns its number
@@ -139,6 +144,39 @@ export class PDFObjectManager {
   // Replaces an object at the index `objectNumber`
   replaceObject(objectNumber: number, content: string): void {
     this.objects[objectNumber - 1] = content;
+  }
+
+  changePDFConfig(config: PDFConfig) {
+    this.pdfConfig = { ...this.pdfConfig, ...config };
+  }
+
+  getPDFConfig(): PDFConfig {
+    return this.pdfConfig;
+  }
+
+  setCurrentPageConfig(config: PDFPageConfig) {
+    this.pdfPageConfig = config;
+  }
+
+  getCurrentPageConfig(): PDFPageConfig {
+    if (!this.pdfPageConfig) {
+      this.pdfPageConfig = { ...this.pdfConfig };
+    }
+    return this.pdfPageConfig;
+  }
+
+  private fillConfigWithStandardValues() {
+    this.pdfConfig = {
+      orientation: Orientation.portrait,
+      defaultFont: {
+        fontFamily: "Helvetica",
+        fontSize: 12,
+        fontStyle: FontStyle.Normal,
+      },
+      pageSize: PageSize.A4,
+      margin: { left: 72, top: 72, bottom: 72, right: 72 },
+      colorMode: ColorMode.color,
+    };
   }
 
   // Calculates the total length of the document in bytes (for XRef)

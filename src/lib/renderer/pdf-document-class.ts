@@ -24,7 +24,7 @@ export interface Margin {
 export interface DefaultFont {
   fontFamily: string;
   fontSize: number;
-  FontStyle: FontStyle;
+  fontStyle: FontStyle;
 }
 
 export interface MetaData {
@@ -34,12 +34,12 @@ export interface MetaData {
 }
 
 export interface PDFConfig {
-  pageSize: PageSize;
-  orientation: Orientation;
-  pageMargin: Margin;
-  colorMode: ColorMode;
-  defaultFont: DefaultFont;
-  metaData: MetaData;
+  pageSize?: PageSize;
+  orientation?: Orientation;
+  margin?: Margin;
+  colorMode?: ColorMode;
+  defaultFont?: DefaultFont;
+  metaData?: MetaData;
 }
 
 export abstract class PDFDocument {
@@ -128,9 +128,11 @@ export abstract class PDFDocument {
     );
   }
   //#endregion
-  constructor() {
+
+  constructor(config?: PDFConfig) {
     // Add all standard font families
     this.registerStandardFonts(this._objectManager);
+    if (config) this._objectManager.changePDFConfig(config);
   }
 
   get objectManager() {
