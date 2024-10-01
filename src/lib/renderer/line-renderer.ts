@@ -17,7 +17,7 @@ ${strokeWidth} w
 ${_color} RG
 [] 0 d
 ${x} ${y} m
-${xEnd} ${y + yEnd!} l
+${xEnd} ${yEnd!} l
 S
 Q
 `;

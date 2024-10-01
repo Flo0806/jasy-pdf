@@ -1,7 +1,9 @@
+import { pageFormats } from "../constants/page-sizes";
 import { PageElement } from "../elements/page-element";
 import { PDFElement } from "../elements/pdf-element";
 import { PDFObjectManager } from "../utils/pdf-object-manager";
 import { RendererRegistry } from "../utils/renderer-registry";
+import { Orientation } from "./pdf-document-class";
 
 export class PageRenderer {
   static async render(
@@ -9,9 +11,10 @@ export class PageRenderer {
     objectManager: PDFObjectManager
   ): Promise<number> {
     let pageContent = "";
+    const { children, config } = page.getProps();
 
     // Pick the content of all elements of the page
-    for (let element of page.getProps()["children"]) {
+    for (let element of children) {
       const renderer = RendererRegistry.getRenderer(element);
       if (renderer) {
         pageContent += await renderer(element, objectManager);
@@ -48,9 +51,14 @@ export class PageRenderer {
           "\n>>\n"
         : "";
 
+    let [width, height] = pageFormats[config?.pageSize!];
+    if (config?.orientation === Orientation.landscape) {
+      [width, height] = [height, width];
+    }
+
     const pageObject = `<< /Type /Page /Parent ${parentObjectNumber} 0 R /Contents ${contentObjectNumber} 0 R /Resources <<\n/Font <<\n${fontReferences.join(
       "\n"
-    )}\n>>\n${imageCode}>>\n/MediaBox [0 0 595 842] >>`;
+    )}\n>>\n${imageCode}>>\n/MediaBox [0 0 ${width} ${height}] >>`;
 
     // Add page as new object and return the page number
     return objectManager.addObject(pageObject);
